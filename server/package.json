@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "bun --env-file=../.env --watch src/presentation/http/server.js",
     "dev:apple-music": "bun --env-file=../.env --watch src/server.ts",
-    "start": "bun --env-file=../.env src/presentation/http/server.js"
+    "start": "tsx src/presentation/http/server.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
