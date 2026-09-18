@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: visionboard-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: TMDB_API_TOKEN
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: APPLE_TEAM_ID
+        sync: false
+      - key: APPLE_KEY_ID
+        sync: false
+      - key: APPLE_PRIVATE_KEY
+        sync: false
+      - key: APPLE_MUSICKIT_MEDIA_API_TOKEN_ORIGIN
+        sync: false
