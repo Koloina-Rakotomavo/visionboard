@@ -10,8 +10,3 @@ services:
     startCommand: npm run start
     healthCheckPath: /api/health
     autoDeployTrigger: commit
-    envVars:
-      - key: TMDB_API_TOKEN
-        sync: false
-      - key: CORS_ORIGIN
-        sync: false
