@@ -5,6 +5,7 @@ import {
   listExploreMovies as listerFilmsExploration,
   listSavedMovies as listerFilmsSauvegardes,
   listUpcomingMovies as listerFilmsAVenir,
+  importLetterboxd as importerExportLetterboxd,
   searchMovies as chercherFilms,
   updateMovie as mettreAJourFilm,
 } from '../../infrastructure/api/moviesApi'
@@ -26,6 +27,7 @@ export function useFilmsCinema() {
   const [totalFilmsTmdb, setTotalFilmsTmdb] = useState(0)
   const [rechercheEnCours, setRechercheEnCours] = useState(false)
   const [sauvegardeEnCours, setSauvegardeEnCours] = useState(false)
+  const [importationLetterboxdEnCours, setImportationLetterboxdEnCours] = useState(false)
   const [erreur, setErreur] = useState('')
 
   useEffect(() => {
@@ -170,6 +172,22 @@ export function useFilmsCinema() {
     }
   }
 
+  const importerLetterboxd = async (file) => {
+    setImportationLetterboxdEnCours(true)
+    setErreur('')
+
+    try {
+      const resultat = await importerExportLetterboxd(file)
+      await rafraichirFilmsSauvegardes()
+      return resultat
+    } catch (erreurRequete) {
+      setErreur(erreurRequete.message)
+      return null
+    } finally {
+      setImportationLetterboxdEnCours(false)
+    }
+  }
+
   const enregistrerFilm = async (id, modifications) => {
     setErreur('')
 
@@ -207,6 +225,8 @@ export function useFilmsCinema() {
     erreur,
     filmsSauvegardes,
     filmsTmdb,
+    importerLetterboxd,
+    importationLetterboxdEnCours,
     modeFilmsTmdb,
     pageFilmsTmdb,
     rafraichirFilmsSauvegardes,
