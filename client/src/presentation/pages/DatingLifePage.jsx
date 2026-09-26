@@ -6,6 +6,16 @@ const initialDates = [
   { name: 'Une limite que j’ai posée', status: 'Victoire', mood: 'Fierté', color: '#ffe29a' },
 ]
 
+const hingeStats = {
+  totalLikes: 147,
+  uniquePeople: 141,
+  peakMonth: 'Août 2026',
+  peakMonthCount: 113,
+  peakHour: '22 h',
+  peakDay: '10 août 2026',
+  peakDayCount: 14,
+}
+
 export function DatingLifePage() {
   const [dates, setDates] = useState(initialDates)
   const [newName, setNewName] = useState('')
@@ -35,6 +45,20 @@ export function DatingLifePage() {
           <article><strong>{dates.length}</strong><span>moments enregistrés</span></article>
           <article><strong>{dates.filter((date) => date.status === 'Victoire').length}</strong><span>petites victoires</span></article>
           <article><strong>∞</strong><span>possibilités</span></article>
+        </section>
+
+        <section className="dating-panel hinge-stats-panel">
+          <div className="dating-panel__header">
+            <div><p className="work-card__eyebrow">Hinge x Gmail</p><h2>Les chiffres de ma dating life</h2></div>
+            <span className="hinge-stats-panel__source">Données relevées dans Gmail</span>
+          </div>
+          <div className="hinge-stats-grid">
+            <article><strong>{hingeStats.totalLikes}</strong><span>notifications « t’a liké·e »</span></article>
+            <article><strong>{hingeStats.uniquePeople}</strong><span>personnes distinctes identifiées</span></article>
+            <article><strong>{hingeStats.peakMonthCount}</strong><span>likes en {hingeStats.peakMonth}</span></article>
+            <article><strong>{hingeStats.peakHour}</strong><span>heure la plus fréquente</span></article>
+          </div>
+          <p className="hinge-stats-panel__note">Journée record : {hingeStats.peakDay} avec {hingeStats.peakDayCount} likes. Les noms individuels restent privés et ne sont pas publiés sur GitHub Pages.</p>
         </section>
         <section className="dating-panel">
           <div className="dating-panel__header">
