@@ -1,4 +1,5 @@
 name: Deploy cinema to GitHub Pages
+# GitHub Pages source configured as GitHub Actions
 
 on:
   push:
