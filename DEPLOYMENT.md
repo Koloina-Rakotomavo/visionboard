@@ -20,7 +20,8 @@
 
 Variables Render (secrets, jamais dans GitHub) :
 - `TMDB_API_KEY` : clé API TMDb v3 (la valeur que tu viens de fournir), ou `TMDB_API_TOKEN` pour un token v4.
-- Ne définis qu'une des deux variables. Le serveur utilise la clé/token uniquement côté Render.
+- Si ta clé v3 est déjà enregistrée sous `TMDB_API_TOKEN`, le serveur la détecte aussi automatiquement.
+- Ne définis idéalement qu'une des deux variables. Le serveur utilise la clé/token uniquement côté Render.
 - `CORS_ORIGIN` : inclure `https://koloina-rakotomavo.github.io` (sans chemin). Plusieurs origines peuvent être séparées par des virgules.
 - Variables Apple Music si utilisées.
 
