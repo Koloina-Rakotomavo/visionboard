@@ -133,6 +133,8 @@ export function CinemaPage() {
     erreur,
     filmsAVenir,
     filmsSauvegardes,
+    importerLetterboxd,
+    importationLetterboxdEnCours,
     rechercheEnCours,
     rechercherFilms,
     resultatsRecherche,
@@ -142,6 +144,7 @@ export function CinemaPage() {
   const [recherche, setRecherche] = useState('')
   const [filtreActif, setFiltreActif] = useState('all')
   const [filmEnEdition, setFilmEnEdition] = useState('')
+  const [messageImportLetterboxd, setMessageImportLetterboxd] = useState('')
 
   const filmsSauvegardesFiltres = useMemo(() => {
     if (filtreActif === 'all') {
@@ -163,6 +166,22 @@ export function CinemaPage() {
       ...formulaire,
     })
     setFilmEnEdition('')
+  }
+
+  const importerFichierLetterboxd = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setMessageImportLetterboxd('')
+    const resultat = await importerLetterboxd(file)
+    if (resultat) {
+      setMessageImportLetterboxd(
+        `${resultat.imported} films importés, ${resultat.skipped} déjà présents${
+          resultat.unresolved ? `, ${resultat.unresolved} sans correspondance TMDb` : ''
+        }.`,
+      )
+    }
   }
 
   return (
@@ -194,6 +213,27 @@ export function CinemaPage() {
               <span>sorties a venir</span>
             </article>
           </div>
+        </section>
+
+        <section className="cinema-panel cinema-import-panel">
+          <div className="cinema-panel__header">
+            <div>
+              <h2>Importer ma base Letterboxd</h2>
+              <p className="reference-panel__note">
+                Importe les films vus, notés et en watchlist. Les critiques et commentaires restent exclus.
+              </p>
+            </div>
+            <label className="cinema-import__button">
+              {importationLetterboxdEnCours ? 'Import en cours...' : 'Choisir le ZIP'}
+              <input
+                accept=".zip,application/zip"
+                disabled={importationLetterboxdEnCours}
+                onChange={importerFichierLetterboxd}
+                type="file"
+              />
+            </label>
+          </div>
+          {messageImportLetterboxd ? <p className="cinema-import__message">{messageImportLetterboxd}</p> : null}
         </section>
 
         <section className="cinema-panel">
