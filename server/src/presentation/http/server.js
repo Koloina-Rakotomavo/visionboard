@@ -72,8 +72,10 @@ const callTmdb = async (pathname, searchParams={}) => {
   const url = new URL(`https://api.themoviedb.org/3${pathname}`)
   Object.entries(searchParams).forEach(([key,value])=>{if(value!==undefined&&value!==null&&value!=='')url.searchParams.set(key,value)})
   const headers = {accept:'application/json'}
-  if (tmdbApiToken) headers.Authorization = `Bearer ${tmdbApiToken}`
-  if (!tmdbApiToken && tmdbApiKey) url.searchParams.set('api_key', tmdbApiKey)
+  // Prefer the v3 key when both variables exist, so a newly rotated key is
+  // not shadowed by an older Render token.
+  if (tmdbApiKey) url.searchParams.set('api_key', tmdbApiKey)
+  else if (tmdbApiToken) headers.Authorization = `Bearer ${tmdbApiToken}`
   const response = await fetch(url,{headers})
   if(!response.ok) throw new Error('TMDb indisponible')
   return response.json()
