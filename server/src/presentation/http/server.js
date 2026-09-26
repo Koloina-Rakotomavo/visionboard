@@ -18,7 +18,12 @@ const notesDbPath = path.join(dataDir, 'notes.json')
 const boardsDbPath = path.join(dataDir, 'boards.json')
 const eventsDbPath = path.join(dataDir, 'events.json')
 const port = Number(process.env.PORT) || 3001
+// TMDb exposes two credential formats. Keep both server-side so the public
+// GitHub Pages bundle never receives either one:
+// - TMDB_API_TOKEN: v4 bearer token
+// - TMDB_API_KEY: v3 API key
 const tmdbApiToken = process.env.TMDB_API_TOKEN
+const tmdbApiKey = process.env.TMDB_API_KEY
 
 const app = express()
 
@@ -63,10 +68,13 @@ const normalizeBoardCanvas = (canvas={}) => ({width:parseNumber(canvas.width)??1
 const buildNotesSummary = (items) => { const gradedItems=items.filter((item)=>typeof item.grade==='number'); if(!gradedItems.length)return{average:null,totalNotes:items.length,bySemester:[]}; const totalWeighted=gradedItems.reduce((s,i)=>s+i.grade*i.coefficient,0); const totalCoefficients=gradedItems.reduce((s,i)=>s+i.coefficient,0); const semesterMap=new Map(); gradedItems.forEach((item)=>{const current=semesterMap.get(item.semester)??{semester:item.semester,totalWeighted:0,totalCoefficients:0,count:0};current.totalWeighted+=item.grade*item.coefficient;current.totalCoefficients+=item.coefficient;current.count+=1;semesterMap.set(item.semester,current)});return{average:totalCoefficients?roundToTwo(totalWeighted/totalCoefficients):null,totalNotes:items.length,bySemester:[...semesterMap.values()].sort((a,b)=>a.semester.localeCompare(b.semester)).map((i)=>({semester:i.semester,average:i.totalCoefficients?roundToTwo(i.totalWeighted/i.totalCoefficients):null,count:i.count}))}}
 
 const callTmdb = async (pathname, searchParams={}) => {
-  if (!tmdbApiToken) throw new Error('TMDB_API_TOKEN manquant sur le serveur')
+  if (!tmdbApiToken && !tmdbApiKey) throw new Error('TMDB_API_TOKEN ou TMDB_API_KEY manquant sur le serveur')
   const url = new URL(`https://api.themoviedb.org/3${pathname}`)
   Object.entries(searchParams).forEach(([key,value])=>{if(value!==undefined&&value!==null&&value!=='')url.searchParams.set(key,value)})
-  const response = await fetch(url,{headers:{Authorization:`Bearer ${tmdbApiToken}`,accept:'application/json'}})
+  const headers = {accept:'application/json'}
+  if (tmdbApiToken) headers.Authorization = `Bearer ${tmdbApiToken}`
+  if (!tmdbApiToken && tmdbApiKey) url.searchParams.set('api_key', tmdbApiKey)
+  const response = await fetch(url,{headers})
   if(!response.ok) throw new Error('TMDb indisponible')
   return response.json()
 }
@@ -80,7 +88,7 @@ app.use(express.json({limit:'2mb'}))
 app.use('/uploads',express.static(uploadsDir))
 app.use('/api/apple-music',createAppleMusicRouter())
 
-app.get('/api/health',(_request,response)=>response.json({ok:true,date:new Date().toISOString(),tmdbConfigured:Boolean(tmdbApiToken)}))
+app.get('/api/health',(_request,response)=>response.json({ok:true,date:new Date().toISOString(),tmdbConfigured:Boolean(tmdbApiToken||tmdbApiKey)}))
 app.get('/api/movies/search',async(request,response,next)=>{try{const query=request.query.q?.trim();if(!query){response.json({items:[]});return}const data=await callTmdb('/search/movie',{query,include_adult:'false',language:'fr-FR',page:'1',region:'FR'});response.json({items:(data.results??[]).map(toTmdbMovieItem)})}catch(error){next(error)}})
 app.get('/api/movies/explore',async(request,response,next)=>{try{const mode=request.query.mode??'trending_week';const page=parseTmdbPage(request.query.page);const year=typeof mode==='string'&&mode.startsWith('year_')?mode.replace('year_',''):'';const isYearMode=/^\d{4}$/.test(year);const data=isYearMode?await callTmdb('/discover/movie',{include_adult:'false',include_video:'false',language:'fr-FR',page:String(page),primary_release_year:year,region:'FR',sort_by:'popularity.desc'}):await callTmdb('/trending/movie/week',{language:'fr-FR',page:String(page)});response.json({items:(data.results??[]).map(toTmdbMovieItem),page:data.page??page,total_pages:data.total_pages??1,total_results:data.total_results??0})}catch(error){next(error)}})
 app.get('/api/movies/upcoming',async(_request,response,next)=>{try{const data=await callTmdb('/movie/upcoming',{language:'fr-FR',page:'1',region:'FR'});response.json({items:(data.results??[]).map(toTmdbMovieItem)})}catch(error){next(error)}})
