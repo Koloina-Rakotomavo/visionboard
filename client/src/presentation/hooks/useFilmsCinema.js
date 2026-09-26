@@ -4,6 +4,7 @@ import {
   deleteMovie as supprimerFilmApi,
   listExploreMovies as listerFilmsExploration,
   listSavedMovies as listerFilmsSauvegardes,
+  listUpcomingMovies as listerFilmsAVenir,
   searchMovies as chercherFilms,
   updateMovie as mettreAJourFilm,
 } from '../../infrastructure/api/moviesApi'
@@ -12,6 +13,8 @@ const MODE_EXPLORATION_INITIAL = 'trending_week'
 
 export function useFilmsCinema() {
   const [filmsSauvegardes, setFilmsSauvegardes] = useState([])
+  const [filmsAVenir, setFilmsAVenir] = useState([])
+  const [chargementFilmsAVenir, setChargementFilmsAVenir] = useState(true)
   const [filmsTmdb, setFilmsTmdb] = useState([])
   const [resultatsRecherche, setResultatsRecherche] = useState([])
   const [chargementFilmsSauvegardes, setChargementFilmsSauvegardes] = useState(true)
@@ -27,6 +30,17 @@ export function useFilmsCinema() {
 
   useEffect(() => {
     let requeteAnnulee = false
+
+    listerFilmsAVenir()
+      .then((films) => {
+        if (!requeteAnnulee) setFilmsAVenir(films)
+      })
+      .catch((error) => {
+        if (!requeteAnnulee) setErreur(error.message)
+      })
+      .finally(() => {
+        if (!requeteAnnulee) setChargementFilmsAVenir(false)
+      })
 
     const chargerFilmsInitiaux = async () => {
       try {
@@ -181,6 +195,8 @@ export function useFilmsCinema() {
   }
 
   return {
+    filmsAVenir,
+    chargementFilmsAVenir,
     ajouterFilm,
     chargerFilmsTmdb,
     chargerPlusFilmsTmdb,
