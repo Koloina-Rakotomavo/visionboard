@@ -39,6 +39,16 @@ export const listExploreMovies = async ({ mode = 'trending_week', page = 1 } = {
   return parseJsonResponse(response)
 }
 
+export const importLetterboxd = async (file) => {
+  const formData = new FormData()
+  formData.append('export', file)
+  const response = await fetch(buildApiUrl('/api/movies/import-letterboxd'), {
+    method: 'POST',
+    body: formData,
+  })
+  return parseJsonResponse(response)
+}
+
 export const createMovie = async (movie) => {
   const response = await fetch(buildApiUrl('/api/movies'), {
     method: 'POST',
