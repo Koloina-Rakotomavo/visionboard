@@ -24,6 +24,7 @@ const port = Number(process.env.PORT) || 3001
 // - TMDB_API_KEY: v3 API key
 const tmdbApiToken = process.env.TMDB_API_TOKEN
 const tmdbApiKey = process.env.TMDB_API_KEY
+const tmdbTokenLooksLikeV3Key = typeof tmdbApiToken === 'string' && /^[a-f0-9]{32}$/i.test(tmdbApiToken)
 
 const app = express()
 
@@ -73,8 +74,10 @@ const callTmdb = async (pathname, searchParams={}) => {
   Object.entries(searchParams).forEach(([key,value])=>{if(value!==undefined&&value!==null&&value!=='')url.searchParams.set(key,value)})
   const headers = {accept:'application/json'}
   // Prefer the v3 key when both variables exist, so a newly rotated key is
-  // not shadowed by an older Render token.
-  if (tmdbApiKey) url.searchParams.set('api_key', tmdbApiKey)
+  // not shadowed by an older Render token. A 32-character hexadecimal value
+  // is also accepted under TMDB_API_TOKEN for compatibility with the key
+  // already configured on Render.
+  if (tmdbApiKey || tmdbTokenLooksLikeV3Key) url.searchParams.set('api_key', tmdbApiKey || tmdbApiToken)
   else if (tmdbApiToken) headers.Authorization = `Bearer ${tmdbApiToken}`
   const response = await fetch(url,{headers})
   if(!response.ok) throw new Error('TMDb indisponible')
