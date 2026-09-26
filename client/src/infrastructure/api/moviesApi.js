@@ -24,6 +24,12 @@ export const listSavedMovies = async () => {
   return data.items
 }
 
+export const listUpcomingMovies = async () => {
+  const response = await fetch(buildApiUrl('/api/movies/upcoming'))
+  const data = await parseJsonResponse(response)
+  return data.items ?? []
+}
+
 export const listExploreMovies = async ({ mode = 'trending_week', page = 1 } = {}) => {
   const params = new URLSearchParams({
     mode,
