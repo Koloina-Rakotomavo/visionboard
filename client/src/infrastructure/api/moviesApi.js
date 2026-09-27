@@ -49,6 +49,18 @@ export const importLetterboxd = async (file) => {
   return parseJsonResponse(response)
 }
 
+export const listLetterboxdReviews = async () => {
+  const response = await fetch(buildApiUrl('/api/letterboxd/reviews'))
+  const data = await parseJsonResponse(response)
+  return data.items ?? []
+}
+
+export const listLetterboxdComments = async () => {
+  const response = await fetch(buildApiUrl('/api/letterboxd/comments'))
+  const data = await parseJsonResponse(response)
+  return data.items ?? []
+}
+
 export const createMovie = async (movie) => {
   const response = await fetch(buildApiUrl('/api/movies'), {
     method: 'POST',
