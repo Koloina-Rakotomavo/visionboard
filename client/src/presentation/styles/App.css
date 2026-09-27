@@ -48,20 +48,10 @@
 .letterboxd-inline-content{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-top:20px}
 .letterboxd-inline-content>div>h3{font-family:'League Spartan',sans-serif;font-size:1.35rem;margin:0 0 10px}
 .letterboxd-inline-list{display:grid;gap:12px;max-height:540px;overflow:auto;padding:2px 5px 2px 2px}
-.letterboxd-page{background:#fff9e8}
-.letterboxd-hero{margin:34px 0;display:flex;justify-content:space-between;gap:24px;align-items:center;background:#c9b7ff;border:2px solid #111;border-radius:26px;padding:28px}
-.letterboxd-hero h2{font-family:'League Spartan',sans-serif;font-size:clamp(1.8rem,4vw,3.2rem);margin:0 0 10px}
-.letterboxd-hero p{max-width:760px;line-height:1.7}
-.letterboxd-import__button{flex:0 0 auto}
-.letterboxd-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:28px 0}
-.letterboxd-stats article{padding:18px;text-align:center;background:#fff;border:2px solid #111;border-radius:20px}
-.letterboxd-stats strong{display:block;font-size:2.2rem;font-family:'League Spartan',sans-serif}
-.letterboxd-stats span{font-size:.9rem}
 .letterboxd-review-list,.letterboxd-comment-list{display:grid;gap:16px}
 .letterboxd-review-card,.letterboxd-comment-card{padding:20px;background:#fff;border:2px solid #111;border-radius:20px}
 .letterboxd-review-card__top{display:flex;justify-content:space-between;gap:16px;align-items:start}
 .letterboxd-review-card h3{font-family:'League Spartan',sans-serif;font-size:1.6rem;margin:0 0 10px}
 .letterboxd-review-card__text,.letterboxd-comment-card p{line-height:1.7;white-space:pre-wrap}
 .letterboxd-review-card a,.letterboxd-comment-card a{color:#111;font-weight:700}
-@media(max-width:760px){.vision-nav__scroller{justify-content:flex-start}.letterboxd-hero{display:block}.letterboxd-import__button{margin-top:14px}.letterboxd-stats{grid-template-columns:1fr}.letterboxd-review-card__top{display:block}}
-@media(max-width:760px){.letterboxd-inline-content{grid-template-columns:1fr}}
+@media(max-width:760px){.vision-nav__scroller{justify-content:flex-start}.letterboxd-review-card__top{display:block}.letterboxd-inline-content{grid-template-columns:1fr}}
