@@ -20,6 +20,7 @@ function App() {
       <nav className="vision-nav" aria-label="Sections du vision board">
         <div className="vision-nav__scroller">
           <a href="#/" className={page === 'cinema' ? 'vision-nav__active' : ''}>Cinema</a>
+          <a href="#cinema-letterboxd">Letterboxd</a>
           <a href="#/dating" className={page === 'dating' ? 'vision-nav__active' : ''}>Dating Life 2026</a>
         </div>
       </nav>
