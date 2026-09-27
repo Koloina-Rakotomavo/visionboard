@@ -3,10 +3,15 @@ import { DatingLifePage } from './presentation/pages/DatingLifePage'
 import './presentation/styles/App.css'
 import { useEffect, useState } from 'react'
 
+const getPageFromHash = () => {
+  if (window.location.hash === '#/dating') return 'dating'
+  return 'cinema'
+}
+
 function App() {
-  const [page, setPage] = useState(window.location.hash === '#/dating' ? 'dating' : 'cinema')
+  const [page, setPage] = useState(getPageFromHash)
   useEffect(() => {
-    const onHashChange = () => setPage(window.location.hash === '#/dating' ? 'dating' : 'cinema')
+    const onHashChange = () => setPage(getPageFromHash())
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
