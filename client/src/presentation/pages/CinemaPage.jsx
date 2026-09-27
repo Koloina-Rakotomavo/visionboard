@@ -1,4 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  listLetterboxdComments,
+  listLetterboxdReviews,
+} from '../../infrastructure/api/moviesApi'
 import { useFilmsCinema } from '../hooks/useFilmsCinema'
 
 const OPTIONS_STATUT_FILM = [
@@ -144,6 +148,9 @@ export function CinemaPage() {
   const [recherche, setRecherche] = useState('')
   const [filtreActif, setFiltreActif] = useState('all')
   const [filmEnEdition, setFilmEnEdition] = useState('')
+  const [avisLetterboxd, setAvisLetterboxd] = useState([])
+  const [commentairesLetterboxd, setCommentairesLetterboxd] = useState([])
+  const [chargementLetterboxd, setChargementLetterboxd] = useState(true)
   const [messageImportLetterboxd, setMessageImportLetterboxd] = useState('')
 
   const filmsSauvegardesFiltres = useMemo(() => {
@@ -159,14 +166,25 @@ export function CinemaPage() {
     await rechercherFilms(recherche)
   }
 
-  const ajouterFilmDepuisFormulaire = async (film, formulaire) => {
-    await ajouterFilm({
-      ...film,
-      category: 'cinema',
-      ...formulaire,
-    })
-    setFilmEnEdition('')
-  }
+  const chargerActiviteLetterboxd = useCallback(async () => {
+    setChargementLetterboxd(true)
+    try {
+      const [avis, commentaires] = await Promise.all([
+        listLetterboxdReviews(),
+        listLetterboxdComments(),
+      ])
+      setAvisLetterboxd(avis)
+      setCommentairesLetterboxd(commentaires)
+    } catch {
+      // Letterboxd remains optional: cinema search and collection still work.
+    } finally {
+      setChargementLetterboxd(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    chargerActiviteLetterboxd()
+  }, [chargerActiviteLetterboxd])
 
   const importerFichierLetterboxd = async (event) => {
     const file = event.target.files?.[0]
@@ -176,12 +194,28 @@ export function CinemaPage() {
     setMessageImportLetterboxd('')
     const resultat = await importerLetterboxd(file)
     if (resultat) {
+      await chargerActiviteLetterboxd()
       setMessageImportLetterboxd(
-        `${resultat.imported} films importés, ${resultat.skipped} déjà présents${
-          resultat.unresolved ? `, ${resultat.unresolved} sans correspondance TMDb` : ''
+        `${resultat.imported ?? 0} films importés, ${resultat.reviews ?? 0} avis et ${resultat.comments ?? 0} commentaires ajoutés${
+          resultat.skipped ? `, ${resultat.skipped} déjà présents` : ''
         }.`,
       )
     }
+  }
+
+  const formaterDateLetterboxd = (value) => {
+    if (!value) return 'Date inconnue'
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('fr-FR')
+  }
+
+  const ajouterFilmDepuisFormulaire = async (film, formulaire) => {
+    await ajouterFilm({
+      ...film,
+      category: 'cinema',
+      ...formulaire,
+    })
+    setFilmEnEdition('')
   }
 
   return (
@@ -215,12 +249,21 @@ export function CinemaPage() {
           </div>
         </section>
 
-        <section className="cinema-panel cinema-import-panel">
+        <nav className="cinema-section-nav" aria-label="Menu cinéma">
+          <a href="#cinema-upcoming">Sorties à venir</a>
+          <a href="#cinema-explorer">Explorer TMDb</a>
+          <a href="#cinema-collection">Ma collection</a>
+          <a href="#cinema-letterboxd">Letterboxd</a>
+        </nav>
+
+        <section className="cinema-panel cinema-import-panel" id="cinema-letterboxd">
           <div className="cinema-panel__header">
             <div>
-              <h2>Importer ma base Letterboxd</h2>
+              <p className="cinema-hero__eyebrow">Dans mon cinéma</p>
+              <h2>Letterboxd, mes avis et mes commentaires</h2>
               <p className="reference-panel__note">
-                Importe les films vus, notés et en watchlist. Les critiques et commentaires restent exclus.
+                Importe ton ZIP Letterboxd ici. Les films, critiques et commentaires restent intégrés
+                à ton espace cinéma et seront conservés dans PostgreSQL une fois la connexion activée.
               </p>
             </div>
             <label className="cinema-import__button">
@@ -233,10 +276,51 @@ export function CinemaPage() {
               />
             </label>
           </div>
+          <div className="letterboxd-inline-stats">
+            <span>{avisLetterboxd.length} avis</span>
+            <span>{commentairesLetterboxd.length} commentaires</span>
+          </div>
           {messageImportLetterboxd ? <p className="cinema-import__message">{messageImportLetterboxd}</p> : null}
+          {chargementLetterboxd ? <p className="media-panel__empty">Chargement de Letterboxd...</p> : null}
+          {!chargementLetterboxd && (avisLetterboxd.length || commentairesLetterboxd.length) ? (
+            <div className="letterboxd-inline-content">
+              <div>
+                <h3>Mes derniers avis</h3>
+                <div className="letterboxd-inline-list">
+                  {avisLetterboxd.map((avis) => (
+                    <article className="letterboxd-review-card" key={avis.id}>
+                      <div className="letterboxd-review-card__top">
+                        <div>
+                          <p className="movie-card__meta">
+                            {avis.year || 'Année inconnue'} · {formaterDateLetterboxd(avis.review_date || avis.created_at)}
+                          </p>
+                          <h3>{avis.title || 'Film Letterboxd'}</h3>
+                        </div>
+                        <span className="saved-movie-card__rating">
+                          {avis.rating ? `${avis.rating}/5` : 'Non noté'}
+                        </span>
+                      </div>
+                      <p className="letterboxd-review-card__text">{avis.review || 'Avis sans texte.'}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3>Mes commentaires</h3>
+                <div className="letterboxd-inline-list">
+                  {commentairesLetterboxd.map((commentaire) => (
+                    <article className="letterboxd-comment-card" key={commentaire.id}>
+                      <p className="movie-card__meta">{formaterDateLetterboxd(commentaire.comment_date || commentaire.created_at)}</p>
+                      <p>{commentaire.comment}</p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
         </section>
 
-        <section className="cinema-panel">
+        <section className="cinema-panel" id="cinema-upcoming">
           <div className="cinema-panel__header">
             <div>
               <h2>Films a venir</h2>
@@ -284,7 +368,7 @@ export function CinemaPage() {
           )}
         </section>
 
-        <section className="cinema-panel">
+        <section className="cinema-panel" id="cinema-explorer">
           <div className="cinema-panel__header">
             <div>
               <h2>Recherche TMDb</h2>
@@ -340,7 +424,7 @@ export function CinemaPage() {
           ) : null}
         </section>
 
-        <section className="cinema-panel">
+        <section className="cinema-panel" id="cinema-collection">
           <div className="cinema-panel__header">
             <div>
               <h2>Mes films</h2>
