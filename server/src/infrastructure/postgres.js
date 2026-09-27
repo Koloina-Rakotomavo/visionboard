@@ -6,7 +6,7 @@ const { Pool } = pg
 const databaseUrl = process.env.DATABASE_URL?.trim()
 export const postgresEnabled = Boolean(databaseUrl)
 
-const isLocalDatabase = databaseUrl ? /localhost|127\\.0.0.1/.test(databaseUrl) : false
+const isLocalDatabase = databaseUrl ? /localhost|127\.0.0.1/.test(databaseUrl) : false
 export const postgresPool = postgresEnabled
   ? new Pool({
       connectionString: databaseUrl,
