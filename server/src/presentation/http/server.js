@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import multer from 'multer'
 import AdmZip from 'adm-zip'
 import { createAppleMusicRouter } from '../routes/appleMusic.routes.ts'
+import { initializePostgres, postgresEnabled, readPostgresCollection, writePostgresCollection } from '../../infrastructure/postgres.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -18,6 +19,8 @@ const moviesDbPath = path.join(dataDir, 'movies.json')
 const notesDbPath = path.join(dataDir, 'notes.json')
 const boardsDbPath = path.join(dataDir, 'boards.json')
 const eventsDbPath = path.join(dataDir, 'events.json')
+const reviewsDbPath = path.join(dataDir, 'letterboxd-reviews.json')
+const commentsDbPath = path.join(dataDir, 'letterboxd-comments.json')
 const port = Number(process.env.PORT) || 3001
 // TMDb exposes two credential formats. Keep both server-side so the public
 // GitHub Pages bundle never receives either one:
@@ -33,27 +36,45 @@ const ensureStorage = async () => {
   await fs.mkdir(dataDir, { recursive: true })
   await fs.mkdir(uploadsDir, { recursive: true })
 
-  for (const filePath of [mediaDbPath, moviesDbPath, notesDbPath, boardsDbPath, eventsDbPath]) {
+  for (const filePath of [mediaDbPath, moviesDbPath, notesDbPath, boardsDbPath, eventsDbPath, reviewsDbPath, commentsDbPath]) {
     try {
       await fs.access(filePath)
     } catch {
       await fs.writeFile(filePath, '[]\n', 'utf8')
     }
   }
+
+  await initializePostgres({
+    media: mediaDbPath,
+    movies: moviesDbPath,
+    notes: notesDbPath,
+    boards: boardsDbPath,
+    events: eventsDbPath,
+    letterboxd_reviews: reviewsDbPath,
+    letterboxd_comments: commentsDbPath,
+  })
 }
 
 const readJson = async (filePath) => JSON.parse(await fs.readFile(filePath, 'utf8'))
-const writeJson = async (filePath, records) => fs.writeFile(filePath, `${JSON.stringify(records, null, 2)}\n`, 'utf8')
-const readMediaDb = () => readJson(mediaDbPath)
-const writeMediaDb = (records) => writeJson(mediaDbPath, records)
-const readMoviesDb = () => readJson(moviesDbPath)
-const writeMoviesDb = (records) => writeJson(moviesDbPath, records)
-const readNotesDb = () => readJson(notesDbPath)
-const writeNotesDb = (records) => writeJson(notesDbPath, records)
-const readBoardsDb = () => readJson(boardsDbPath)
-const writeBoardsDb = (records) => writeJson(boardsDbPath, records)
-const readEventsDb = () => readJson(eventsDbPath)
-const writeEventsDb = (records) => writeJson(eventsDbPath, records)
+const writeJson = async (filePath, records) => fs.writeFile(filePath, JSON.stringify(records, null, 2) + '\n', 'utf8')
+const readCollection = (collection, filePath) => postgresEnabled ? readPostgresCollection(collection) : readJson(filePath)
+const writeCollection = (collection, filePath, records) => postgresEnabled
+  ? writePostgresCollection(collection, records)
+  : writeJson(filePath, records)
+const readMediaDb = () => readCollection('media', mediaDbPath)
+const writeMediaDb = (records) => writeCollection('media', mediaDbPath, records)
+const readMoviesDb = () => readCollection('movies', moviesDbPath)
+const writeMoviesDb = (records) => writeCollection('movies', moviesDbPath, records)
+const readNotesDb = () => readCollection('notes', notesDbPath)
+const writeNotesDb = (records) => writeCollection('notes', notesDbPath, records)
+const readBoardsDb = () => readCollection('boards', boardsDbPath)
+const writeBoardsDb = (records) => writeCollection('boards', boardsDbPath, records)
+const readEventsDb = () => readCollection('events', eventsDbPath)
+const writeEventsDb = (records) => writeCollection('events', eventsDbPath, records)
+const readLetterboxdReviewsDb = () => readCollection('letterboxd_reviews', reviewsDbPath)
+const writeLetterboxdReviewsDb = (records) => writeCollection('letterboxd_reviews', reviewsDbPath, records)
+const readLetterboxdCommentsDb = () => readCollection('letterboxd_comments', commentsDbPath)
+const writeLetterboxdCommentsDb = (records) => writeCollection('letterboxd_comments', commentsDbPath, records)
 
 const toSafeTheme = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 const buildPublicUploadUrl = (fileName) => `/uploads/${fileName}`
@@ -141,6 +162,29 @@ const parseLetterboxdRating = (value) => {
   return Number.isFinite(rating) && rating >= 0.5 && rating <= 5 ? rating : null
 }
 
+const stripLetterboxdMarkup = (value) => String(value ?? '')
+  .replace(/<br\s*\/?>/gi, '\n')
+  .replace(/<\/p>/gi, '\n')
+  .replace(/<[^>]*>/g, '')
+  .replace(/&nbsp;/gi, ' ')
+  .replace(/&amp;/gi, '&')
+  .replace(/&quot;/gi, '"')
+  .replace(/&#39;/gi, "'")
+  .replace(/\n{3,}/g, '\n\n')
+  .trim()
+
+const letterboxdReviewKey = (row) => [
+  row['Letterboxd URI'] || row.URL || row.Name || '',
+  row.Date || row['Watched Date'] || '',
+  row.Review || '',
+].join('::')
+
+const letterboxdCommentKey = (row) => [
+  row.Date || '',
+  row.Content || '',
+  row.Comment || '',
+].join('::')
+
 const mergeLetterboxdMovie = (collection, row, patch = {}) => {
   const title = String(row.Name ?? '').trim()
   if (!title) return null
@@ -200,12 +244,78 @@ app.use(express.json({limit:'2mb'}))
 app.use('/uploads',express.static(uploadsDir))
 app.use('/api/apple-music',createAppleMusicRouter())
 
-app.get('/api/health',(_request,response)=>response.json({ok:true,date:new Date().toISOString(),tmdbConfigured:Boolean(tmdbApiToken||tmdbApiKey)}))
+app.get('/api/health',(_request,response)=>response.json({ok:true,date:new Date().toISOString(),tmdbConfigured:Boolean(tmdbApiToken||tmdbApiKey),databaseConfigured:postgresEnabled}))
 app.get('/api/movies/search',async(request,response,next)=>{try{const query=request.query.q?.trim();if(!query){response.json({items:[]});return}const data=await callTmdb('/search/movie',{query,include_adult:'false',language:'fr-FR',page:'1',region:'FR'});response.json({items:(data.results??[]).map(toTmdbMovieItem)})}catch(error){next(error)}})
 app.get('/api/movies/explore',async(request,response,next)=>{try{const mode=request.query.mode??'trending_week';const page=parseTmdbPage(request.query.page);const year=typeof mode==='string'&&mode.startsWith('year_')?mode.replace('year_',''):'';const isYearMode=/^\d{4}$/.test(year);const data=isYearMode?await callTmdb('/discover/movie',{include_adult:'false',include_video:'false',language:'fr-FR',page:String(page),primary_release_year:year,region:'FR',sort_by:'popularity.desc'}):await callTmdb('/trending/movie/week',{language:'fr-FR',page:String(page)});response.json({items:(data.results??[]).map(toTmdbMovieItem),page:data.page??page,total_pages:data.total_pages??1,total_results:data.total_results??0})}catch(error){next(error)}})
 app.get('/api/movies/upcoming',async(_request,response,next)=>{try{const data=await callTmdb('/movie/upcoming',{language:'fr-FR',page:'1',region:'FR'});response.json({items:(data.results??[]).map(toTmdbMovieItem)})}catch(error){next(error)}})
 app.get('/api/movies',async(_request,response,next)=>{try{response.json({items:(await readMoviesDb()).sort((a,b)=>b.created_at-a.created_at)})}catch(error){next(error)}})
-app.post('/api/movies/import-letterboxd',letterboxdUpload.single('export'),async(request,response,next)=>{try{const importToken=process.env.LETTERBOXD_IMPORT_TOKEN;if(importToken&&request.headers['x-import-token']!==importToken){response.status(401).json({error:'Import Letterboxd non autorise'});return}if(!request.file){response.status(400).json({error:'Le fichier ZIP Letterboxd est obligatoire'});return}const zip=new AdmZip(request.file.buffer);const collection=new Map();const ratings=readLetterboxdCsv(zip,'ratings.csv');const watched=readLetterboxdCsv(zip,'watched.csv');const diary=readLetterboxdCsv(zip,'diary.csv');const watchlist=readLetterboxdCsv(zip,'watchlist.csv');ratings.forEach((row)=>{const rating=parseLetterboxdRating(row.Rating);mergeLetterboxdMovie(collection,row,rating===null?{}:{rating})});watched.forEach((row)=>{mergeLetterboxdMovie(collection,row,{watched:true,watched_date:row.Date??''})});diary.forEach((row)=>{const current=mergeLetterboxdMovie(collection,row);const diaryDate=row['Watched Date']||row.Date||'';const rating=parseLetterboxdRating(row.Rating);mergeLetterboxdMovie(collection,row,{watched:true,watch_count:(current?.watch_count??0)+1,watched_date:diaryDate>=(current?.watched_date??'')?diaryDate:(current?.watched_date??''),...(rating===null?{}:{rating})})});watchlist.forEach((row)=>{mergeLetterboxdMovie(collection,row,{watchlist:true})});const profile=readLetterboxdCsv(zip,'profile.csv')[0];const favoriteUris=new Set(String(profile?.['Favorite Films']??'').split(',').map((value)=>value.trim()).filter(Boolean));favoriteUris.forEach((uri)=>{const current=collection.get(uri);if(current)collection.set(uri,{...current,favorite:true})});readLetterboxdListCsv(zip).forEach((row)=>{mergeLetterboxdMovie(collection,row,{favorite:true})});const candidates=[...collection.values()];const existingRecords=await readMoviesDb();const existingIds=new Set(existingRecords.map((movie)=>String(movie.tmdb_id)));const resolved=await mapWithConcurrency(candidates,5,async(item)=>{try{const data=await callTmdb('/search/movie',{query:item.title,year:item.year||undefined,include_adult:'false',language:'fr-FR',page:'1',region:'FR'});const results=data.results??[];const matchingYear=results.find((movie)=>item.year&&String(movie.release_date??'').startsWith(String(item.year)));return{item,movie:matchingYear??results[0]??null}}catch{return{item,movie:null}}});const imported=[];let skipped=0;let unresolved=0;for(const resolvedItem of resolved){const item=resolvedItem.item;const tmdbMovie=resolvedItem.movie;const fallbackUri=item.letterboxd_uri||`${item.title}-${item.year??''}`;const tmdbId=tmdbMovie?.id??`letterboxd:${encodeURIComponent(fallbackUri)}`;if(existingIds.has(String(tmdbId))){skipped+=1;continue}if(!tmdbMovie)unresolved+=1;const importedMovie={id:createId(),tmdb_id:tmdbId,title:tmdbMovie?.title??item.title,poster_url:getTmdbImageUrl(tmdbMovie?.poster_path),backdrop_url:getTmdbImageUrl(tmdbMovie?.backdrop_path),overview:tmdbMovie?.overview??'',release_date:tmdbMovie?.release_date??(item.year?`${item.year}-01-01`:''),category:'cinema',personal_status:item.favorite?'favorites':item.watchlist?'watchlist':'watched',personal_note:'',personal_rating:item.rating,watched_year:normalizeWatchedYear(item.year),source:'letterboxd',source_url:item.letterboxd_uri||null,letterboxd_watch_count:item.watch_count,created_at:Date.parse(item.watched_date)||Date.now()};imported.push(importedMovie);existingIds.add(String(tmdbId))}await writeMoviesDb([...existingRecords,...imported]);response.status(201).json({imported:imported.length,skipped,unresolved,total:candidates.length})}catch(error){next(error)}})
+app.post('/api/movies/import-letterboxd',letterboxdUpload.single('export'),async(request,response,next)=>{try{
+  const importToken=process.env.LETTERBOXD_IMPORT_TOKEN
+  if(importToken&&request.headers['x-import-token']!==importToken){response.status(401).json({error:'Import Letterboxd non autorise'});return}
+  if(!request.file){response.status(400).json({error:'Le fichier ZIP Letterboxd est obligatoire'});return}
+
+  const zip=new AdmZip(request.file.buffer)
+  const collection=new Map()
+  const ratings=readLetterboxdCsv(zip,'ratings.csv')
+  const watched=readLetterboxdCsv(zip,'watched.csv')
+  const diary=readLetterboxdCsv(zip,'diary.csv')
+  const watchlist=readLetterboxdCsv(zip,'watchlist.csv')
+  const reviewRows=readLetterboxdCsv(zip,'reviews.csv')
+  const commentRows=readLetterboxdCsv(zip,'comments.csv')
+
+  ratings.forEach((row)=>{const rating=parseLetterboxdRating(row.Rating);mergeLetterboxdMovie(collection,row,rating===null?{}:{rating})})
+  watched.forEach((row)=>{mergeLetterboxdMovie(collection,row,{watched:true,watched_date:row.Date??''})})
+  diary.forEach((row)=>{const current=mergeLetterboxdMovie(collection,row);const diaryDate=row['Watched Date']||row.Date||'';const rating=parseLetterboxdRating(row.Rating);mergeLetterboxdMovie(collection,row,{watched:true,watch_count:(current?.watch_count??0)+1,watched_date:diaryDate>=(current?.watched_date??'')?diaryDate:(current?.watched_date??''),...(rating===null?{}:{rating})})})
+  watchlist.forEach((row)=>{mergeLetterboxdMovie(collection,row,{watchlist:true})})
+  reviewRows.forEach((row)=>{const rating=parseLetterboxdRating(row.Rating);mergeLetterboxdMovie(collection,row,{watched:true,...(rating===null?{}:{rating})})})
+
+  const profile=readLetterboxdCsv(zip,'profile.csv')[0]
+  const favoriteUris=new Set(String(profile?.['Favorite Films']??'').split(',').map((value)=>value.trim()).filter(Boolean))
+  favoriteUris.forEach((uri)=>{const current=collection.get(uri);if(current)collection.set(uri,{...current,favorite:true})})
+  readLetterboxdListCsv(zip).forEach((row)=>{mergeLetterboxdMovie(collection,row,{favorite:true})})
+
+  const candidates=[...collection.values()]
+  const existingRecords=await readMoviesDb()
+  const existingIds=new Set(existingRecords.map((movie)=>String(movie.tmdb_id)))
+  const resolved=await mapWithConcurrency(candidates,5,async(item)=>{try{
+    const data=await callTmdb('/search/movie',{query:item.title,year:item.year||undefined,include_adult:'false',language:'fr-FR',page:'1',region:'FR'})
+    const results=data.results??[]
+    const matchingYear=results.find((movie)=>item.year&&String(movie.release_date??'').startsWith(String(item.year)))
+    return{item,movie:matchingYear??results[0]??null}
+  }catch{return{item,movie:null}}})
+
+  const imported=[]
+  let skipped=0
+  let unresolved=0
+  for(const resolvedItem of resolved){
+    const item=resolvedItem.item
+    const tmdbMovie=resolvedItem.movie
+    const fallbackUri=item.letterboxd_uri||item.title+'-'+(item.year??'')
+    const tmdbId=tmdbMovie?.id??'letterboxd:'+encodeURIComponent(fallbackUri)
+    if(existingIds.has(String(tmdbId))){skipped+=1;continue}
+    if(!tmdbMovie)unresolved+=1
+    const importedMovie={id:createId(),tmdb_id:tmdbId,title:tmdbMovie?.title??item.title,poster_url:getTmdbImageUrl(tmdbMovie?.poster_path),backdrop_url:getTmdbImageUrl(tmdbMovie?.backdrop_path),overview:tmdbMovie?.overview??'',release_date:tmdbMovie?.release_date??(item.year?item.year+'-01-01':''),category:'cinema',personal_status:item.favorite?'favorites':item.watchlist?'watchlist':'watched',personal_note:'',personal_rating:item.rating,watched_year:normalizeWatchedYear(item.year),source:'letterboxd',source_url:item.letterboxd_uri||null,letterboxd_watch_count:item.watch_count,created_at:Date.parse(item.watched_date)||Date.now()}
+    imported.push(importedMovie)
+    existingIds.add(String(tmdbId))
+  }
+
+  const existingReviews=await readLetterboxdReviewsDb()
+  const existingReviewKeys=new Set(existingReviews.map((review)=>review.import_key))
+  const reviewsToImport=reviewRows.filter((row)=>String(row.Review??'').trim()).map((row)=>({id:createId(),import_key:letterboxdReviewKey(row),letterboxd_uri:row['Letterboxd URI']||row.URL||null,title:row.Name||'Film Letterboxd',year:Number(row.Year)||null,rating:parseLetterboxdRating(row.Rating),review:stripLetterboxdMarkup(row.Review),review_date:row.Date||row['Watched Date']||'',watched_date:row['Watched Date']||'',rewatch:String(row.Rewatch??'').toLowerCase()==='yes',tags:String(row.Tags??'').split(',').map((tag)=>tag.trim()).filter(Boolean),source:'letterboxd',created_at:Date.parse(row.Date||row['Watched Date']||'')||Date.now()})).filter((review)=>!existingReviewKeys.has(review.import_key))
+
+  const existingComments=await readLetterboxdCommentsDb()
+  const existingCommentKeys=new Set(existingComments.map((comment)=>comment.import_key))
+  const commentsToImport=commentRows.filter((row)=>String(row.Comment??'').trim()).map((row)=>({id:createId(),import_key:letterboxdCommentKey(row),target_url:row.Content||null,comment:stripLetterboxdMarkup(row.Comment),comment_date:row.Date||'',source:'letterboxd',created_at:Date.parse(row.Date||'')||Date.now()})).filter((comment)=>!existingCommentKeys.has(comment.import_key))
+
+  await writeMoviesDb([...existingRecords,...imported])
+  await writeLetterboxdReviewsDb([...existingReviews,...reviewsToImport])
+  await writeLetterboxdCommentsDb([...existingComments,...commentsToImport])
+  response.status(201).json({imported:imported.length,skipped,unresolved,total:candidates.length,reviews:reviewsToImport.length,comments:commentsToImport.length})
+}catch(error){next(error)}})
+
+app.get('/api/letterboxd/reviews',async(_request,response,next)=>{try{response.json({items:(await readLetterboxdReviewsDb()).sort((a,b)=>b.created_at-a.created_at)})}catch(error){next(error)}})
+app.get('/api/letterboxd/comments',async(_request,response,next)=>{try{response.json({items:(await readLetterboxdCommentsDb()).sort((a,b)=>b.created_at-a.created_at)})}catch(error){next(error)}})
+
 app.post('/api/movies',async(request,response,next)=>{try{const body=request.body??{};if(!body.tmdb_id||!body.title){response.status(400).json({error:'tmdb_id et title sont obligatoires'});return}const records=await readMoviesDb();if(records.find((movie)=>movie.tmdb_id===body.tmdb_id)){response.status(409).json({error:'Ce film est deja dans ton vision board cinema'});return}const item={id:createId(),tmdb_id:body.tmdb_id,title:body.title,poster_url:body.poster_url??null,backdrop_url:body.backdrop_url??null,overview:body.overview??'',release_date:body.release_date??'',category:body.category??'cinema',personal_status:body.personal_status??'watchlist',personal_note:body.personal_note??'',personal_rating:typeof body.personal_rating==='number'&&body.personal_rating>=1&&body.personal_rating<=5?body.personal_rating:null,watched_year:normalizeWatchedYear(body.watched_year),created_at:Date.now()};await writeMoviesDb([...records,item]);response.status(201).json({item})}catch(error){next(error)}})
 app.put('/api/movies/:id',async(request,response,next)=>{try{const records=await readMoviesDb();const target=records.find((movie)=>movie.id===request.params.id);if(!target){response.status(404).json({error:'Film introuvable'});return}const body=request.body??{};const item={...target,category:body.category??target.category,personal_status:body.personal_status??target.personal_status,personal_note:body.personal_note??target.personal_note,personal_rating:body.personal_rating===null?null:typeof body.personal_rating==='number'&&body.personal_rating>=1&&body.personal_rating<=5?body.personal_rating:target.personal_rating??null,watched_year:normalizeWatchedYear(body.watched_year,target.watched_year??null)};await writeMoviesDb(records.map((movie)=>movie.id===target.id?item:movie));response.json({item})}catch(error){next(error)}})
 app.delete('/api/movies/:id',async(request,response,next)=>{try{const records=await readMoviesDb();const target=records.find((movie)=>movie.id===request.params.id);if(!target){response.status(404).json({error:'Film introuvable'});return}await writeMoviesDb(records.filter((movie)=>movie.id!==target.id));response.status(204).end()}catch(error){next(error)}})
