@@ -27,7 +27,13 @@ Variables Render (secrets, jamais dans GitHub) :
 
 Le 26 septembre 2026, le health check Render répondait et autorisait l'origine GitHub Pages, mais l'endpoint des sorties renvoyait « TMDb indisponible ». La recherche et les sorties doivent être vérifiées après correction de la connexion TMDb.
 
-Les fichiers `server/data/*.json` du dépôt sont volontairement vides afin de ne pas publier de données personnelles. Les données utilisées par le backend nécessitent un stockage persistant pour survivre aux redéploiements.
+Les fichiers `server/data/*.json` du dépôt sont volontairement vides afin de ne pas publier de données personnelles.
+
+## PostgreSQL et Letterboxd
+
+Le backend utilise PostgreSQL lorsqu'une variable `DATABASE_URL` est définie. Au premier démarrage, il crée la table `visionboard_records` et migre les éventuels fichiers JSON présents sur l'instance. Les films, notes, boards, événements, médias, avis Letterboxd et commentaires Letterboxd sont ensuite conservés dans PostgreSQL.
+
+Dans Render, ajoute la variable secrète `DATABASE_URL` avec l'URL de ta base PostgreSQL, puis redéploie le service. L'import Letterboxd se fait ensuite depuis la rubrique Letterboxd intégrée à la page Cinéma. Les données personnelles ne doivent jamais être ajoutées à GitHub.
 
 ## Alternative Vercel
 
