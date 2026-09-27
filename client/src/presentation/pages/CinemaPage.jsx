@@ -183,7 +183,10 @@ export function CinemaPage() {
   }, [])
 
   useEffect(() => {
-    chargerActiviteLetterboxd()
+    const timer = window.setTimeout(() => {
+      chargerActiviteLetterboxd()
+    }, 0)
+    return () => window.clearTimeout(timer)
   }, [chargerActiviteLetterboxd])
 
   const importerFichierLetterboxd = async (event) => {
