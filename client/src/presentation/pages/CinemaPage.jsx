@@ -315,6 +315,11 @@ export function CinemaPage() {
                     <article className="letterboxd-comment-card" key={commentaire.id}>
                       <p className="movie-card__meta">{formaterDateLetterboxd(commentaire.comment_date || commentaire.created_at)}</p>
                       <p>{commentaire.comment}</p>
+                      {commentaire.target_url ? (
+                        <a href={commentaire.target_url} rel="noreferrer" target="_blank">
+                          Voir la publication commentée ↗
+                        </a>
+                      ) : null}
                     </article>
                   ))}
                 </div>
