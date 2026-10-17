@@ -1,0 +1,359 @@
+{
+  "backrooms::2026": {
+    "tmdb_id": 1083381,
+    "title": "Backrooms",
+    "release_date": "2026-05-27",
+    "poster_url": "https://image.tmdb.org/t/p/w500/thQQ3BBBhGDtWm3UTtabhyDJd8U.jpg",
+    "genres": [
+      {
+        "id": 27,
+        "name": "Horreur"
+      },
+      {
+        "id": 9648,
+        "name": "Mystère"
+      },
+      {
+        "id": 878,
+        "name": "Science-Fiction"
+      }
+    ],
+    "directors": [
+      {
+        "id": 3688382,
+        "name": "Kane Parsons",
+        "profile_url": "https://image.tmdb.org/t/p/w185/l4hXiK0NI84l328p6V3DEvDtgFE.jpg"
+      }
+    ],
+    "runtime": 105
+  },
+  "colony::2026": {
+    "tmdb_id": 1375646,
+    "title": "Colony",
+    "release_date": "2026-05-21",
+    "poster_url": "https://image.tmdb.org/t/p/w500/xtZ10oWsZxmaOUNrTa4dmdBYMCa.jpg",
+    "genres": [
+      {
+        "id": 27,
+        "name": "Horreur"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 878,
+        "name": "Science-Fiction"
+      }
+    ],
+    "directors": [
+      {
+        "id": 939147,
+        "name": "Yeon Sang-ho",
+        "profile_url": "https://image.tmdb.org/t/p/w185/dLP1p4AkU1zwJkDboct58Uub9S7.jpg"
+      }
+    ],
+    "runtime": 123
+  },
+  "flow::2024": {
+    "tmdb_id": 823219,
+    "title": "Flow, le chat qui n'avait plus peur de l'eau",
+    "release_date": "2024-08-29",
+    "poster_url": "https://image.tmdb.org/t/p/w500/zeinX0xt78GgtpCQjx7d2S6Gh7g.jpg",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Aventure"
+      },
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Familial"
+      },
+      {
+        "id": 14,
+        "name": "Fantastique"
+      }
+    ],
+    "directors": [
+      {
+        "id": 1328012,
+        "name": "Gints Zilbalodis",
+        "profile_url": "https://image.tmdb.org/t/p/w185/fP44KcwJLGK3or7T7bImWBSDKo8.jpg"
+      }
+    ],
+    "runtime": 85
+  },
+  "michael::2026": {
+    "tmdb_id": 936075,
+    "title": "Michael",
+    "release_date": "2026-04-22",
+    "poster_url": "https://image.tmdb.org/t/p/w500/2sDgNilJGVFpl1x4DMzYHjk0L0f.jpg",
+    "genres": [
+      {
+        "id": 10402,
+        "name": "Musique"
+      },
+      {
+        "id": 18,
+        "name": "Drame"
+      }
+    ],
+    "directors": [
+      {
+        "id": 20907,
+        "name": "Antoine Fuqua",
+        "profile_url": "https://image.tmdb.org/t/p/w185/9zh0MmYIw1BP8V7y9N9K5Rjew4C.jpg"
+      }
+    ],
+    "runtime": 127
+  },
+  "obsession::2025": {
+    "tmdb_id": 1339713,
+    "title": "Obsession",
+    "release_date": "2026-05-13",
+    "poster_url": "https://image.tmdb.org/t/p/w500/mDCR1frpUvGfIKksuM440VLb7X9.jpg",
+    "genres": [
+      {
+        "id": 27,
+        "name": "Horreur"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      }
+    ],
+    "directors": [
+      {
+        "id": 2381985,
+        "name": "Curry Barker",
+        "profile_url": "https://image.tmdb.org/t/p/w185/A16CxGKlkQYryoxGpxzKj4Wxk83.jpg"
+      }
+    ],
+    "runtime": 108
+  },
+  "spider-man: brand new day::2026": {
+    "tmdb_id": 969681,
+    "title": "Spider-Man : Brand New Day",
+    "release_date": "2026-07-29",
+    "poster_url": "https://image.tmdb.org/t/p/w500/6OEtkkzoyusZDm2uMJojlWZSLR9.jpg",
+    "genres": [
+      {
+        "id": 878,
+        "name": "Science-Fiction"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 12,
+        "name": "Aventure"
+      }
+    ],
+    "directors": [
+      {
+        "id": 1144604,
+        "name": "Destin Daniel Cretton",
+        "profile_url": "https://image.tmdb.org/t/p/w185/wtA2EtkvCyxu4oWECzqAF7G8IZH.jpg"
+      }
+    ],
+    "runtime": 150
+  },
+  "the devil wears prada 2::2026": {
+    "tmdb_id": 1314481,
+    "title": "Le Diable s'habille en Prada 2",
+    "release_date": "2026-04-29",
+    "poster_url": "https://image.tmdb.org/t/p/w500/pD5fSVgDW2L5993eAlDd2GFXwIp.jpg",
+    "genres": [
+      {
+        "id": 35,
+        "name": "Comédie"
+      },
+      {
+        "id": 18,
+        "name": "Drame"
+      }
+    ],
+    "directors": [
+      {
+        "id": 5065,
+        "name": "David Frankel",
+        "profile_url": "https://image.tmdb.org/t/p/w185/hfIjLMo8Upl6MXhn1YcoDoXeeZn.jpg"
+      }
+    ],
+    "runtime": 119
+  },
+  "the drama::2026": {
+    "tmdb_id": 1325734,
+    "title": "The Drama",
+    "release_date": "2026-04-01",
+    "poster_url": "https://image.tmdb.org/t/p/w500/37r0FZuv9OAQgMApDoJ8gvd5LWs.jpg",
+    "genres": [
+      {
+        "id": 10749,
+        "name": "Romance"
+      },
+      {
+        "id": 35,
+        "name": "Comédie"
+      },
+      {
+        "id": 18,
+        "name": "Drame"
+      }
+    ],
+    "directors": [
+      {
+        "id": 1280021,
+        "name": "Kristoffer Borgli",
+        "profile_url": "https://image.tmdb.org/t/p/w185/ftLljVAuKvECl8rAG7JbiGANy8P.jpg"
+      }
+    ],
+    "runtime": 105
+  },
+  "the end of oak street::2026": {
+    "tmdb_id": 1101383,
+    "title": "La Fin d'Oak Street",
+    "release_date": "2026-08-12",
+    "poster_url": "https://image.tmdb.org/t/p/w500/yZINaQysj32K2DS2EW4Iy1bK4Bm.jpg",
+    "genres": [
+      {
+        "id": 878,
+        "name": "Science-Fiction"
+      },
+      {
+        "id": 9648,
+        "name": "Mystère"
+      },
+      {
+        "id": 53,
+        "name": "Thriller"
+      }
+    ],
+    "directors": [
+      {
+        "id": 558929,
+        "name": "David Robert Mitchell",
+        "profile_url": "https://image.tmdb.org/t/p/w185/i0XKqclsHNO8JAD7yNuuUNOUXG3.jpg"
+      }
+    ],
+    "runtime": 100
+  },
+  "the love hypothesis::2026": {
+    "tmdb_id": 1032863,
+    "title": "The Love Hypothesis",
+    "release_date": "2026-09-23",
+    "poster_url": "https://image.tmdb.org/t/p/w500/6hfjkMZIsAOVdNC4NAAmCYthC7r.jpg",
+    "genres": [
+      {
+        "id": 10749,
+        "name": "Romance"
+      },
+      {
+        "id": 35,
+        "name": "Comédie"
+      }
+    ],
+    "directors": [
+      {
+        "id": 1296522,
+        "name": "Claire Scanlon",
+        "profile_url": "https://image.tmdb.org/t/p/w185/1KJEYBcnFWTufazuPs2A4hFEV4s.jpg"
+      }
+    ],
+    "runtime": 112
+  },
+  "the odyssey::2026": {
+    "tmdb_id": 1368337,
+    "title": "L'Odyssée",
+    "release_date": "2026-07-15",
+    "poster_url": "https://image.tmdb.org/t/p/w500/kP8jJIkmX0vWEYiqQ9c5zU0dvcn.jpg",
+    "genres": [
+      {
+        "id": 12,
+        "name": "Aventure"
+      },
+      {
+        "id": 28,
+        "name": "Action"
+      },
+      {
+        "id": 14,
+        "name": "Fantastique"
+      }
+    ],
+    "directors": [
+      {
+        "id": 525,
+        "name": "Christopher Nolan",
+        "profile_url": "https://image.tmdb.org/t/p/w185/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg"
+      }
+    ],
+    "runtime": 173
+  },
+  "the sheep detectives::2026": {
+    "tmdb_id": 1301421,
+    "title": "Les Moutons détectives",
+    "release_date": "2026-04-30",
+    "poster_url": "https://image.tmdb.org/t/p/w500/5GjWHaN6XW9RbeUqqYbzfKSThqX.jpg",
+    "genres": [
+      {
+        "id": 35,
+        "name": "Comédie"
+      },
+      {
+        "id": 10751,
+        "name": "Familial"
+      },
+      {
+        "id": 9648,
+        "name": "Mystère"
+      }
+    ],
+    "directors": [
+      {
+        "id": 8023,
+        "name": "Kyle Balda",
+        "profile_url": "https://image.tmdb.org/t/p/w185/kjf5Thaf8s5vImSN7JUJkW6jKG8.jpg"
+      }
+    ],
+    "runtime": 109
+  },
+  "toy story 5::2026": {
+    "tmdb_id": 1084244,
+    "title": "Toy Story 5",
+    "release_date": "2026-06-17",
+    "poster_url": "https://image.tmdb.org/t/p/w500/5eqxQzAxennEKBAg147LUX4gVlS.jpg",
+    "genres": [
+      {
+        "id": 16,
+        "name": "Animation"
+      },
+      {
+        "id": 10751,
+        "name": "Familial"
+      },
+      {
+        "id": 35,
+        "name": "Comédie"
+      },
+      {
+        "id": 12,
+        "name": "Aventure"
+      }
+    ],
+    "directors": [
+      {
+        "id": 7,
+        "name": "Andrew Stanton",
+        "profile_url": "https://image.tmdb.org/t/p/w185/fo6ePCWEVB0L1sccrvB99Iaoqcg.jpg"
+      }
+    ],
+    "runtime": 102
+  },
+  "les ensorceulleuses::2026": null
+}

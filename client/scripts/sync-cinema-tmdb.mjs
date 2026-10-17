@@ -18,7 +18,9 @@ async function worker() {
       const query = new URLSearchParams({ title: record.title, year: record.release_year ?? '' })
       const response = await fetch(`${base}/api/movies/metadata?${query}`, { signal: AbortSignal.timeout(25000) })
       if (!response.ok) throw Error(`HTTP ${response.status}`)
-      catalog[key(record)] = (await response.json()).item
+      const item = (await response.json()).item
+      const fields = new Set(['tmdb_id', 'title', 'release_date', 'poster_url', 'genres', 'directors', 'runtime'])
+      catalog[key(record)] = item ? Object.fromEntries(Object.entries(item).filter(([field]) => fields.has(field))) : null
     } catch { failures++ }
   }
 }

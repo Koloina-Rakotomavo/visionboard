@@ -21,7 +21,7 @@ body:has(.cinema-app) { background: #FFFFFF; }
 .recap-chapters button { flex: 1; background: transparent; border: none; padding: 8px 0; }
 .recap-chapters button span { display: block; height: 4px; background: #e8e8ec; border-radius: 3px; }
 .recap-chapters button.recap-step--seen span { background: var(--recap-ink); }
-.recap-stage { overflow: hidden; border-radius: 18px; position: relative; min-height: 580px; background: var(--recap-yellow); }
+.recap-stage { overflow: hidden; border-radius: 18px; position: relative; min-height: 580px; background: var(--recap-yellow); touch-action: pan-y pinch-zoom; }
 .recap-scene { animation: recap-in 180ms ease-out; }
 .recap-stage h2 { font-family: 'League Spartan', sans-serif; font-size: clamp(3.6rem, 7.2vw, 6.7rem); letter-spacing: -.055em; line-height: .91; margin: 18px 0 25px; font-weight: 800; text-wrap: balance; }
 .recap-kicker { font-size: .78rem; line-height: 1.5; margin: 0; font-weight: 500; }

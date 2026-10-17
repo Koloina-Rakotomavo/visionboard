@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? ''
+const API_BASE_URL = import.meta.env?.VITE_API_URL?.replace(/\/$/, '') ?? ''
 
 const buildApiUrl = (path) => `${API_BASE_URL}${path}`
 

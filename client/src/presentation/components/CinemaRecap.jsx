@@ -28,7 +28,7 @@ function Genres({ stats }) {
       <ol className="recap-genre-ranking">{stats.genres.slice(0, 4).map((genre, i) => <li key={genre.id}><span>{String(i + 1).padStart(2, '0')}</span><div><strong>{genre.name}</strong><div className="recap-genre-track"><span style={{ width: `${genre.count / first.count * 100}%` }} /></div></div><b>{genre.count}</b></li>)}</ol>
     </div>
     <div className="recap-genre-posters">{stats.posters.filter(film => film.metadata.genres.some(genre => genre.id === first?.id)).slice(0, 3).map(film => <FilmPoster film={film} key={film.id} />)}</div>
-    <p className="recap-footnote">{stats.matched} / {stats.sessions} films reconnus. Un film peut appartenir à plusieurs genres. Les nombres comptent les visionnages, pas tes notes.</p>
+    <p className="recap-footnote">{stats.matched} / {stats.sessions} visionnages reconnus. Un film peut appartenir à plusieurs genres. Les nombres comptent les visionnages, pas tes notes.</p>
   </div>
 }
 
@@ -58,7 +58,7 @@ function TimeSpent({ stats }) {
 }
 
 function Finale({ stats, edition, onCollection }) {
-  return <div className="recap-finale"><div><p className="recap-kicker">Ton affiche · {edition}</p><h2>Le cinéma<br />te va bien.</h2><p className="recap-lede">{stats.filmCount} films distincts. {stats.genres.length} genres explorés.</p><button className="recap-primary" type="button" onClick={onCollection}>Retrouver mes films</button></div><div className="recap-mosaic">{stats.posters.slice(0, 9).map(film => <FilmPoster film={film} key={film.id} />)}</div><p className="recap-footnote">Genres calculés sur {stats.matched} / {stats.sessions} films reconnus par TMDb.</p></div>
+  return <div className="recap-finale"><div><p className="recap-kicker">Ton affiche · {edition}</p><h2>Le cinéma<br />te va bien.</h2><p className="recap-lede">{stats.filmCount} films distincts. {stats.genres.length} genres explorés.</p><button className="recap-primary" type="button" onClick={onCollection}>Retrouver mes films</button></div><div className="recap-mosaic">{stats.posters.slice(0, 9).map(film => <FilmPoster film={film} key={film.id} />)}</div><p className="recap-footnote">Genres calculés sur {stats.matched} / {stats.sessions} visionnages reconnus par TMDb.</p></div>
 }
 
 export function CinemaRecapChapter({ chapter, stats, edition, onCollection }) {
