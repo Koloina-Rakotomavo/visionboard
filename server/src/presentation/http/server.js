@@ -122,7 +122,7 @@ const castCache = new Map()
 app.get('/api/movies/:tmdbId/cast', async (request, response, next) => {
   try {
     const id = String(request.params.tmdbId)
-    if (!/^[1-9]\\d{0,9}$/.test(id)) return response.status(400).json({ error: 'Identifiant TMDb invalide' })
+    if (!/^[1-9][0-9]{0,9}$/.test(id)) return response.status(400).json({ error: 'Identifiant TMDb invalide' })
     const cached = castCache.get(id)
     if (cached && cached.expires > Date.now()) return response.json({ cast: cached.cast })
     const data = await callTmdb('/movie/' + id + '/credits', { language: 'fr-FR' })
