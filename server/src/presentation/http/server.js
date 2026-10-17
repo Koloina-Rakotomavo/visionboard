@@ -118,6 +118,23 @@ app.get('/api/movies/metadata', async (request, response, next) => {
     response.set('Cache-Control', 'public, max-age=86400').json({ item })
   } catch (error) { next(error) }
 })
+const castCache = new Map()
+app.get('/api/movies/:tmdbId/cast', async (request, response, next) => {
+  try {
+    const id = String(request.params.tmdbId)
+    if (!/^[1-9]\\d{0,9}$/.test(id)) return response.status(400).json({ error: 'Identifiant TMDb invalide' })
+    const cached = castCache.get(id)
+    if (cached && cached.expires > Date.now()) return response.json({ cast: cached.cast })
+    const data = await callTmdb('/movie/' + id + '/credits', { language: 'fr-FR' })
+    const cast = [...new Map((data.cast ?? []).map(person => [person.id, {
+      id: person.id, name: person.name,
+      profile_url: person.profile_path ? 'https://image.tmdb.org/t/p/w185' + person.profile_path : null,
+    }])).values()]
+    if (castCache.size >= 1000) castCache.delete(castCache.keys().next().value)
+    castCache.set(id, { cast, expires: Date.now() + 86400000 })
+    response.set('Cache-Control', 'public, max-age=86400').json({ cast })
+  } catch (error) { next(error) }
+})
 app.get('/api/movies/search',async(request,response,next)=>{try{const query=request.query.q?.trim();if(!query){response.json({items:[]});return}const data=await callTmdb('/search/movie',{query,include_adult:'false',language:'fr-FR',page:'1',region:'FR'});response.json({items:(data.results??[]).map(toTmdbMovieItem)})}catch(error){next(error)}})
 app.get('/api/movies/explore',async(request,response,next)=>{try{const mode=request.query.mode??'trending_week';const page=parseTmdbPage(request.query.page);const year=typeof mode==='string'&&mode.startsWith('year_')?mode.replace('year_',''):'';const isYearMode=/^\d{4}$/.test(year);const data=isYearMode?await callTmdb('/discover/movie',{include_adult:'false',include_video:'false',language:'fr-FR',page:String(page),primary_release_year:year,region:'FR',sort_by:'popularity.desc'}):await callTmdb('/trending/movie/week',{language:'fr-FR',page:String(page)});response.json({items:(data.results??[]).map(toTmdbMovieItem),page:data.page??page,total_pages:data.total_pages??1,total_results:data.total_results??0})}catch(error){next(error)}})
 app.get('/api/movies/upcoming',async(_request,response,next)=>{try{const data=await callTmdb('/movie/upcoming',{language:'fr-FR',page:'1',region:'FR'});response.json({items:(data.results??[]).map(toTmdbMovieItem)})}catch(error){next(error)}})
