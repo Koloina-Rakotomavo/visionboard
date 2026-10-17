@@ -19,3 +19,18 @@ test('rewatches remain sessions; missing durations are not zero estimates', () =
   ]
   assert.deepEqual(summarize(data), { sessions: 2, films: 1, minutes: 155, knownDurations: 1, unknownYears: 1 })
 })
+
+test('category normalization merges spelling variants without inferring missing values', async () => {
+  const { normalizeRecord, categorySummary, annualCounts } = await import('./cinemaStats.js')
+  const records = [
+    { viewing_mode: ' Cinema', platform: 'Amazone Prime', company: 'ensemble', watched_date: '2026', premium: 'Non' },
+    { viewing_mode: 'Cinéma', watched_date: '2025', premium: null },
+    { viewing_mode: '#ERROR!', watched_date: 'every year' },
+  ].map(normalizeRecord)
+  assert.equal(records[0].platform, 'Amazon Prime')
+  assert.equal(records[0].company, 'Accompagnée')
+  assert.equal(records[1].premium, 'Non renseigné')
+  assert.deepEqual(categorySummary(records, 'viewing_mode'), { groups: [{ label: 'Cinéma', count: 2 }], known: 2, missing: 1, total: 3 })
+  assert.deepEqual(annualCounts(records), [{ label: '2025', count: 1 }, { label: '2026', count: 1 }])
+  assert.deepEqual(categorySummary([], 'viewing_mode'), { groups: [], known: 0, missing: 0, total: 0 })
+})

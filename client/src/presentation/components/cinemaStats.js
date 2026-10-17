@@ -33,3 +33,28 @@ export function summarize(records) {
     unknownYears: records.filter(r => !watchedYear(r.watched_date)).length,
   }
 }
+
+export function normalizeRecord(record) {
+  const mode = cleanCategory(record.viewing_mode)
+  const key = mode.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  const company = cleanCategory(record.company)
+  const platform = cleanCategory(record.platform)
+  return {
+    ...record,
+    viewing_mode: ({ cinema: 'Cinéma', streaming: 'Streaming', television: 'Télévision', autre: 'Autre' })[key] ?? mode,
+    company: ({ seule: 'Seule', ensemble: 'Accompagnée', date: 'En date', 'seule/ensemble': 'Mixte' })[company.toLowerCase()] ?? company,
+    platform: /^(amazon|amazone) prime$/i.test(platform) ? 'Amazon Prime' : platform,
+    premium: ({ oui: 'Premium', non: 'Standard' })[cleanCategory(record.premium).toLowerCase()] ?? UNKNOWN,
+  }
+}
+
+export function categorySummary(records, field) {
+  const groups = groupCounts(records, field).filter(group => group.label !== UNKNOWN)
+  const known = groups.reduce((sum, group) => sum + group.count, 0)
+  return { groups, known, missing: records.length - known, total: records.length }
+}
+
+export function annualCounts(records) {
+  const known = records.map(record => ({ year: watchedYear(record.watched_date) })).filter(record => record.year)
+  return groupCounts(known, 'year').sort((a, b) => a.label.localeCompare(b.label))
+}
