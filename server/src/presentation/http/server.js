@@ -119,12 +119,14 @@ app.get('/api/movies/metadata', async (request, response, next) => {
   } catch (error) { next(error) }
 })
 const castCache = new Map()
-app.get('/api/movies/:tmdbId/cast', async (request, response, next) => {
-  try {
-    const id = String(request.params.tmdbId)
-    if (!/^[1-9][0-9]{0,9}$/.test(id)) return response.status(400).json({ error: 'Identifiant TMDb invalide' })
-    const cached = castCache.get(id)
-    if (cached && cached.expires > Date.now()) return response.json({ cast: cached.cast })
+const pendingCasts = new Map()
+const validMovieId = value => /^[1-9][0-9]{0,9}$/.test(String(value))
+const resolveCast = async id => {
+  id = String(id)
+  const cached = castCache.get(id)
+  if (cached && cached.expires > Date.now()) return cached.cast
+  if (pendingCasts.has(id)) return pendingCasts.get(id)
+  const task = (async () => {
     const data = await callTmdb('/movie/' + id + '/credits', { language: 'fr-FR' })
     const cast = [...new Map((data.cast ?? []).map(person => [person.id, {
       id: person.id, name: person.name,
@@ -132,7 +134,37 @@ app.get('/api/movies/:tmdbId/cast', async (request, response, next) => {
     }])).values()]
     if (castCache.size >= 1000) castCache.delete(castCache.keys().next().value)
     castCache.set(id, { cast, expires: Date.now() + 86400000 })
-    response.set('Cache-Control', 'public, max-age=86400').json({ cast })
+    return cast
+  })()
+  pendingCasts.set(id, task)
+  try { return await task } finally { pendingCasts.delete(id) }
+}
+app.get('/api/movies/:tmdbId/cast', async (request, response, next) => {
+  try {
+    if (!validMovieId(request.params.tmdbId)) return response.status(400).json({ error: 'Identifiant TMDb invalide' })
+    response.set('Cache-Control', 'public, max-age=86400').json({ cast: await resolveCast(request.params.tmdbId) })
+  } catch (error) { next(error) }
+})
+// Read-only batch of public movie credits, capped to keep requests bounded.
+app.post('/api/movies/casts', async (request, response, next) => {
+  try {
+    const ids = request.body?.ids
+    if (!Array.isArray(ids) || !ids.length || ids.length > 40 || !ids.every(validMovieId)) return response.status(400).json({ error: 'Fournir entre 1 et 40 identifiants TMDb valides' })
+    const unique = [...new Set(ids.map(String))]
+    const movies = {}, people = {}, failed = []
+    let cursor = 0
+    async function worker() {
+      while (cursor < unique.length) {
+        const id = unique[cursor++]
+        try {
+          const cast = await resolveCast(id)
+          movies[id] = cast.map(person => person.id)
+          for (const person of cast) people[person.id] = person
+        } catch { failed.push(id) }
+      }
+    }
+    await Promise.all(Array.from({ length: Math.min(6, unique.length) }, worker))
+    response.json({ movies, people, failed })
   } catch (error) { next(error) }
 })
 app.get('/api/movies/search',async(request,response,next)=>{try{const query=request.query.q?.trim();if(!query){response.json({items:[]});return}const data=await callTmdb('/search/movie',{query,include_adult:'false',language:'fr-FR',page:'1',region:'FR'});response.json({items:(data.results??[]).map(toTmdbMovieItem)})}catch(error){next(error)}})
@@ -167,3 +199,4 @@ app.delete('/api/themes/:theme/media/:id',async(request,response,next)=>{try{con
 
 app.use((error,_request,response,_next)=>response.status(500).json({error:error.message||'Erreur serveur'}))
 ensureStorage().then(()=>app.listen(port,'0.0.0.0',()=>console.log(`Visionboard API active sur le port ${port}`))).catch((error)=>{console.error('Impossible de demarrer le serveur:',error);process.exit(1)})
+
