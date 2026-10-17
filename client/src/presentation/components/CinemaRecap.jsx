@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
+import { PersonPortrait } from './CinemaInsights'
+import { formatDays, formatHours } from './cinemaAnalytics'
 
-const CHAPTERS = ['Le générique', 'Tes genres', 'Derrière la caméra', 'Tes habitudes', 'Le temps du cinéma', 'Ton affiche']
+const CHAPTERS = ['Le générique', 'Tes genres', 'Ton acteur', 'Derrière la caméra', 'Tes habitudes', 'Le temps du cinéma', 'Ton affiche']
 const duration = minutes => `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`
 
 export function FilmPoster({ film, className = '', eager = false }) {
@@ -32,6 +34,13 @@ function Genres({ stats }) {
   </div>
 }
 
+function Actors({ stats }) {
+  const data = stats.analytics?.actors
+  const first = data?.ranking[0]
+  const film = first && stats.posters.find(item => first.filmIds.includes(item.metadata.tmdb_id))
+  return <div className="recap-actors"><div><p className="recap-kicker">Le casting qui revient</p><h2>{first?.name ?? (stats.castLoading ? 'Le casting arrive.' : 'À découvrir.')}</h2>{first && <p className="recap-lede"><strong>{first.count} visionnages</strong>, dans {first.filmCount} films distincts de cette sélection.</p>}{data?.leaders.length > 1 && <p className="recap-actor-ties">Ex æquo avec {data.leaders.slice(1, 3).map(person => person.name).join(', ')}{data.leaders.length > 3 ? ` et ${data.leaders.length - 3} autres` : ''}.</p>}<ul className="recap-actor-ranking">{data?.ranking.slice(0, 3).map(person => <li key={person.id}><span>{person.name}</span><strong>{person.count} visionnages</strong></li>)}</ul></div><div className="recap-actor-art">{first && <PersonPortrait person={first} />}{film && <FilmPoster film={film} />}</div><p className="recap-footnote">Castings disponibles pour {data?.covered ?? 0} / {stats.sessions} visionnages. Une présence par visionnage, voix comprises. Le classement annuel et à vie est détaillé sous le récap.</p></div>
+}
+
 function Directors({ stats }) {
   const top = stats.directors.slice(0, 3)
   const tied = top.length > 1 && top[0].count === top[1].count
@@ -52,8 +61,11 @@ function Rituals({ stats }) {
 }
 
 function TimeSpent({ stats }) {
-  return <div className="recap-time"><div><p className="recap-kicker">Le temps s’est arrêté</p><h2>{stats.knownDurations ? duration(stats.minutes) : 'À compléter'}</h2><p className="recap-lede">{stats.knownDurations ? 'passées dans d’autres vies.' : 'Ajoute les durées dans ton tableau pour découvrir ton temps de cinéma.'}</p><p className="recap-footnote">Somme des durées de ton tableau, sur {stats.knownDurations} / {stats.sessions} visionnages.</p></div>
-    {stats.longest && <div className="recap-longest"><FilmPoster film={stats.longest} /><div><span>Ta séance la plus longue</span><h3>{stats.longest.title}</h3><strong>{stats.longest.duration_minutes} min</strong></div></div>}
+  const time = stats.analytics?.cinemaTime
+  const minutes = time?.minutes ?? stats.minutes
+  const known = time?.known ?? stats.knownDurations
+  return <div className="recap-time"><div><p className="recap-kicker">Le temps du grand écran</p><h2>{known ? `${time?.estimated ? '≈ ' : ''}${duration(minutes)}` : 'À compléter'}</h2><p className="recap-lede">{known ? <>en salle. Soit <strong>{formatDays(minutes)} journées de 24 h</strong> à regarder d’autres vies.</> : 'Les durées de tes séances au cinéma apparaîtront ici.'}</p><p className="recap-footnote">{time ? <>{time.confirmed} durées renseignées{time.estimated ? ` + ${time.estimated} complétées par TMDb` : ''}, sur {time.total} séances. {stats.analytics.totalTime.known ? `Tous supports : ${stats.analytics.totalTime.estimated ? '≈ ' : ''}${formatHours(stats.analytics.totalTime.minutes)} de films.` : ''}</> : `${stats.knownDurations} durées renseignées.`}</p></div>
+    {stats.longest && <div className="recap-longest"><FilmPoster film={stats.longest} /><div><span>Ta séance renseignée la plus longue</span><h3>{stats.longest.title}</h3><strong>{stats.longest.duration_minutes} min</strong></div></div>}
   </div>
 }
 
@@ -62,7 +74,7 @@ function Finale({ stats, edition, onCollection }) {
 }
 
 export function CinemaRecapChapter({ chapter, stats, edition, onCollection }) {
-  const content = [<Intro stats={stats} edition={edition} />, <Genres stats={stats} />, <Directors stats={stats} />, <Rituals stats={stats} />, <TimeSpent stats={stats} />, <Finale stats={stats} edition={edition} onCollection={onCollection} />]
+  const content = [<Intro stats={stats} edition={edition} />, <Genres stats={stats} />, <Actors stats={stats} />, <Directors stats={stats} />, <Rituals stats={stats} />, <TimeSpent stats={stats} />, <Finale stats={stats} edition={edition} onCollection={onCollection} />]
   return content[chapter] ?? content[0]
 }
 
@@ -75,6 +87,6 @@ export function CinemaRecap({ stats, edition, onCollection }) {
     <div className={`recap-stage recap-stage--${chapter}`} onTouchStart={event => { touch.current = [event.touches[0].clientX, event.touches[0].clientY] }} onTouchEnd={event => { if (!touch.current) return; const dx = event.changedTouches[0].clientX - touch.current[0], dy = event.changedTouches[0].clientY - touch.current[1]; if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) change(dx < 0 ? 1 : -1); touch.current = null }} onKeyDown={event => { if (event.target !== event.currentTarget) return; if (event.key === 'ArrowRight') { event.preventDefault(); change(1) } if (event.key === 'ArrowLeft') { event.preventDefault(); change(-1) } }} tabIndex={0} role="group" aria-roledescription="diaporama" aria-label={`${chapter + 1} sur ${CHAPTERS.length} : ${CHAPTERS[chapter]}`}>
       <div className="recap-scene" key={chapter}><CinemaRecapChapter chapter={chapter} stats={stats} edition={edition} onCollection={onCollection} /></div>
     </div>
-    <div className="recap-controls"><span aria-live="polite">{String(chapter + 1).padStart(2, '0')} / {String(CHAPTERS.length).padStart(2, '0')}<span className="recap-chapter-name">{CHAPTERS[chapter]}</span></span><div><button type="button" onClick={() => change(-1)} disabled={chapter === 0} aria-label="Chapitre précédent"><Chevron back /></button><button className="recap-next" type="button" onClick={() => chapter === 5 ? setChapter(0) : change(1)} aria-label={chapter === 5 ? 'Revoir le récap' : 'Chapitre suivant'}>{chapter === 5 ? 'Revoir' : 'Suivant'}<Chevron /></button></div></div>
+    <div className="recap-controls"><span aria-live="polite">{String(chapter + 1).padStart(2, '0')} / {String(CHAPTERS.length).padStart(2, '0')}<span className="recap-chapter-name">{CHAPTERS[chapter]}</span></span><div><button type="button" onClick={() => change(-1)} disabled={chapter === 0} aria-label="Chapitre précédent"><Chevron back /></button><button className="recap-next" type="button" onClick={() => chapter === CHAPTERS.length - 1 ? setChapter(0) : change(1)} aria-label={chapter === CHAPTERS.length - 1 ? 'Revoir le récap' : 'Chapitre suivant'}>{chapter === CHAPTERS.length - 1 ? 'Revoir' : 'Suivant'}<Chevron /></button></div></div>
   </section>
 }

@@ -40,3 +40,8 @@ export const resolveMovieMetadata = async (record) => {
   const data = await parseJsonResponse(response)
   return data.item
 }
+
+export const fetchMovieCast = async (id) => {
+  const response = await fetch(buildApiUrl(`/api/movies/${encodeURIComponent(id)}/cast`), { signal: AbortSignal.timeout(25000) })
+  return (await parseJsonResponse(response)).cast ?? []
+}
