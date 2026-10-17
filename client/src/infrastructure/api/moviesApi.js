@@ -18,12 +18,6 @@ export const searchMovies = async (query) => {
   return data.items
 }
 
-export const listSavedMovies = async () => {
-  const response = await fetch(buildApiUrl('/api/movies'))
-  const data = await parseJsonResponse(response)
-  return data.items
-}
-
 export const listUpcomingMovies = async () => {
   const response = await fetch(buildApiUrl('/api/movies/upcoming'))
   const data = await parseJsonResponse(response)
@@ -40,39 +34,9 @@ export const listExploreMovies = async ({ mode = 'trending_week', page = 1 } = {
 }
 
 
-export const createMovie = async (movie) => {
-  const response = await fetch(buildApiUrl('/api/movies'), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(movie),
-  })
-
+export const resolveMovieMetadata = async (record) => {
+  const params = new URLSearchParams({ title: record.title, year: record.release_year ?? '' })
+  const response = await fetch(buildApiUrl(`/api/movies/metadata?${params}`), { signal: AbortSignal.timeout(20000) })
   const data = await parseJsonResponse(response)
   return data.item
-}
-
-export const updateMovie = async (id, movie) => {
-  const response = await fetch(buildApiUrl(`/api/movies/${id}`), {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(movie),
-  })
-
-  const data = await parseJsonResponse(response)
-  return data.item
-}
-
-export const deleteMovie = async (id) => {
-  const response = await fetch(buildApiUrl(`/api/movies/${id}`), {
-    method: 'DELETE',
-  })
-
-  if (!response.ok) {
-    const data = await response.json().catch(() => null)
-    throw new Error(data?.error ?? 'Erreur API')
-  }
 }

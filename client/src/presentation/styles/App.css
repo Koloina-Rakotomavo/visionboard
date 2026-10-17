@@ -264,8 +264,6 @@
   font-weight: 600;
 }
 
-.letterboxd-inline-stats { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0; }
-.letterboxd-inline-stats span,
 .saved-movie-card__badge {
   padding: 7px 10px;
   border: 1px solid var(--line);
@@ -276,12 +274,7 @@
   font-weight: 700;
 }
 
-.letterboxd-inline-content { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; margin-top: 20px; }
-.letterboxd-inline-content > div > h3 { margin: 0 0 10px; font-family: 'League Spartan', sans-serif; font-size: 1.18rem; letter-spacing: -.03em; }
-.letterboxd-inline-list { display: grid; gap: 10px; max-height: 540px; overflow: auto; padding: 2px; }
 
-.letterboxd-review-card,
-.letterboxd-comment-card,
 .upcoming-card,
 .movie-card,
 .saved-movie-card,
@@ -292,19 +285,11 @@
   box-shadow: 0 1px 2px rgba(23, 23, 23, .03);
 }
 
-.letterboxd-review-card,
-.letterboxd-comment-card { padding: 18px; }
-.letterboxd-review-card__top,
 .saved-movie-card__top { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
-.letterboxd-review-card h3,
 .upcoming-card h3,
 .movie-card h3,
 .saved-movie-card h3,
 .dating-card h3 { margin: 0 0 8px; font-family: 'League Spartan', sans-serif; letter-spacing: -.035em; }
-.letterboxd-review-card__text,
-.letterboxd-comment-card p { line-height: 1.65; white-space: pre-wrap; }
-.letterboxd-review-card a,
-.letterboxd-comment-card a { color: var(--ink); font-size: .85rem; font-weight: 700; }
 
 .upcoming-strip {
   display: grid;
@@ -462,8 +447,6 @@
   .cinema-hero, .dating-hero { grid-template-columns: 1fr; }
   .cinema-hero__stats { grid-template-columns: repeat(2, 1fr); }
   .cinema-panel__header, .dating-panel__header { display: block; }
-  .letterboxd-inline-content { grid-template-columns: 1fr; }
-  .letterboxd-review-card__top { display: block; }
   .saved-movie-card { grid-template-columns: 1fr; }
   .saved-movie-card__poster { aspect-ratio: 16 / 9; }
   .hinge-stats-grid, .dating-stats { grid-template-columns: 1fr 1fr; }
@@ -476,3 +459,4 @@
   .cinema-import-panel .cinema-panel__header { display: block; }
   .cinema-import__button { margin-top: 14px; }
 }
+

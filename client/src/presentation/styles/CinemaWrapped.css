@@ -1,0 +1,208 @@
+/* Poster-led stories and three views. */
+body:has(.cinema-app) { background: #FFFFFF; }
+.vision-nav:has(+ .cinema-app) { background: #FFFFFF; border-bottom: 1px solid #ededed; backdrop-filter: none; }
+.vision-nav:has(+ .cinema-app) a.vision-nav__active { background: #101013; color: #FFFFFF; box-shadow: none; }
+.cinema-app { --recap-ink: #101013; --recap-yellow: #FFE34A; --recap-purple: #C5A3FF; --recap-blue: #1746FF; color: var(--recap-ink); background: #FFFFFF; max-width: 1280px; margin: 0 auto; padding: 44px 40px 36px; }
+.cinema-app button, .cinema-app input, .cinema-app select { font: inherit; }
+.cinema-app button, .cinema-app a, .cinema-app select { -webkit-tap-highlight-color: transparent; }
+.cinema-app button { cursor: pointer; }
+.cinema-app button:focus-visible, .cinema-app a:focus-visible, .cinema-app select:focus-visible, .cinema-app input:focus-visible, .recap-stage:focus-visible { outline: 3px solid #1746FF; outline-offset: 4px; }
+.cinema-masthead { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 24px; }
+.cinema-masthead p { margin: 0 0 7px; font-size: .8rem; color: #606065; }
+.cinema-masthead h1 { margin: 0; font-family: 'League Spartan', sans-serif; font-size: clamp(2.2rem, 4.3vw, 3.4rem); letter-spacing: -.045em; line-height: 1; }
+.cinema-edition { display: grid; gap: 5px; font-size: .7rem; color: #606065; }
+.cinema-edition select { color: var(--recap-ink); background: #FFFFFF; border: 1px solid #d7d7db; padding: 9px 30px 9px 12px; border-radius: 8px; max-width: 210px; font-size: .84rem; }
+.cinema-switcher { display: flex; gap: 26px; border-bottom: 1px solid #e7e7eb; margin-bottom: 22px; }
+.cinema-switcher button { position: relative; border: none; background: transparent; color: #606065; padding: 12px 2px 15px; font-size: .85rem; font-weight: 500; }
+.cinema-switcher button[aria-pressed="true"] { color: var(--recap-ink); }
+.cinema-switcher button[aria-pressed="true"]::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: var(--recap-ink); }
+.recap-player { max-width: 1200px; margin: 0 auto; }
+.recap-chapters { display: flex; gap: 6px; margin: 0 0 8px; }
+.recap-chapters button { flex: 1; background: transparent; border: none; padding: 8px 0; }
+.recap-chapters button span { display: block; height: 4px; background: #e8e8ec; border-radius: 3px; }
+.recap-chapters button.recap-step--seen span { background: var(--recap-ink); }
+.recap-stage { overflow: hidden; border-radius: 18px; position: relative; min-height: 580px; background: var(--recap-yellow); }
+.recap-scene { animation: recap-in 180ms ease-out; }
+.recap-stage h2 { font-family: 'League Spartan', sans-serif; font-size: clamp(3.6rem, 7.2vw, 6.7rem); letter-spacing: -.055em; line-height: .91; margin: 18px 0 25px; font-weight: 800; text-wrap: balance; }
+.recap-kicker { font-size: .78rem; line-height: 1.5; margin: 0; font-weight: 500; }
+.recap-lede { font-size: clamp(.92rem, 1.4vw, 1.1rem); line-height: 1.65; max-width: 36ch; }
+.recap-footnote { font-size: .65rem; line-height: 1.65; margin: 18px 0 0; opacity: .8; max-width: 90ch; }
+.recap-intro { display: grid; grid-template-columns: 1.04fr 1fr; min-height: 580px; padding: 54px; align-items: center; }
+.recap-intro-copy { position: relative; z-index: 2; }
+.recap-intro h2 { font-size: clamp(4.5rem, 8.9vw, 8.4rem); margin-top: 30px; }
+.recap-intro-stat { font-size: .9rem; max-width: 28ch; line-height: 1.5; }
+.recap-intro-stat strong { font-family: 'League Spartan', sans-serif; font-size: 2.2rem; vertical-align: middle; margin-right: 5px; }
+.recap-poster { aspect-ratio: 2 / 3; background: #212127; color: #FFFFFF; overflow: hidden; border-radius: 5px; position: relative; }
+.recap-poster img { width: 100%; height: 100%; object-fit: cover; }
+.recap-poster > span { display: flex; height: 100%; align-items: center; justify-content: center; padding: 18px; font-family: 'League Spartan', sans-serif; text-align: center; font-size: 1.6rem; line-height: 1.1; }
+.recap-fan { position: relative; height: 390px; margin-left: -5%; }
+.recap-fan .recap-poster { position: absolute; width: 46%; max-width: 205px; box-shadow: 0 12px 30px #10101330; }
+.recap-fan-0 { left: 2%; top: 55px; transform: rotate(-16deg); }
+.recap-fan-1 { left: 33%; top: 0; transform: rotate(6deg); }
+.recap-fan-2 { left: 51%; top: 142px; transform: rotate(16deg); }
+.recap-fan-3 { left: 14%; top: 188px; transform: rotate(-5deg); }
+.recap-type-art { font-family: 'League Spartan', sans-serif; font-size: 8rem; line-height: .8; transform: rotate(-10deg); opacity: .15; }
+.recap-stage--1 { background: var(--recap-purple); }
+.recap-genres { position: relative; min-height: 580px; padding: 52px 54px 32px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px 40px; align-items: center; }
+.recap-genres h2 { font-size: clamp(3.5rem, 7vw, 6.3rem); overflow-wrap: anywhere; }
+.recap-genre-ranking { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 14px; max-width: 430px; }
+.recap-genre-ranking li { display: grid; grid-template-columns: 25px 1fr 24px; gap: 12px; align-items: center; font-size: .83rem; }
+.recap-genre-ranking li > span { font-size: .65rem; }
+.recap-genre-track { height: 5px; background: #10101320; border-radius: 3px; margin-top: 7px; }
+.recap-genre-track span { display: block; height: 100%; background: var(--recap-ink); border-radius: inherit; }
+.recap-genre-posters { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 15px; transform: rotate(7deg); }
+.recap-genre-posters .recap-poster:first-child { grid-row: span 2; }
+.recap-genres > .recap-footnote, .recap-rituals > .recap-footnote, .recap-finale > .recap-footnote { grid-column: 1 / -1; }
+.recap-stage--2 { background: var(--recap-ink); color: #FFFFFF; }
+.recap-directors { min-height: 580px; padding: 52px 54px 34px; }
+.recap-directors h2 { max-width: 850px; font-size: clamp(3.5rem, 6.4vw, 5.8rem); }
+.recap-director-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 30px; }
+.recap-director { display: flex; gap: 16px; align-items: center; min-width: 0; }
+.recap-director img, .recap-person-initial { flex-shrink: 0; width: 86px; height: 115px; object-fit: cover; border-radius: 50px; filter: grayscale(1); background: #39393e; }
+.recap-person-initial { display: grid; place-items: center; font-size: 2.5rem; font-family: 'League Spartan', sans-serif; }
+.recap-director h3 { font-family: 'League Spartan', sans-serif; font-size: 1.55rem; line-height: 1; margin: 0 0 8px; }
+.recap-director p { margin: 0; color: #c8c8ce; font-size: .7rem; }
+.recap-stage--3 { background: #C9E6F8; }
+.recap-rituals { min-height: 580px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 26px; padding: 52px 54px 32px; align-items: center; }
+.recap-rituals h2 { font-size: clamp(3.5rem, 6.6vw, 6rem); }
+.recap-habit-number { display: flex; gap: 18px; align-items: center; }
+.recap-habit-number strong { font-family: 'League Spartan', sans-serif; font-size: 4.8rem; line-height: 1; letter-spacing: -.06em; }
+.recap-habit-number span { font-size: .75rem; line-height: 1.5; }
+.recap-ticket { background: #FFFFFF; padding: 25px 28px; transform: rotate(5deg); border-radius: 7px; max-width: 340px; box-shadow: 7px 10px 0 #101013; }
+.recap-ticket-top { display: flex; justify-content: space-between; gap: 12px; font-size: .65rem; padding-bottom: 14px; border-bottom: 1px dashed #88888b; }
+.recap-ticket h3 { font-family: 'League Spartan', sans-serif; font-size: 3rem; line-height: .9; margin: 24px 0; letter-spacing: -.05em; }
+.recap-ticket dl { font-size: .7rem; margin: 0; display: grid; gap: 12px; }
+.recap-ticket dl div { display: flex; justify-content: space-between; gap: 16px; }
+.recap-ticket dd { margin: 0; font-weight: 600; }
+.recap-ticket-barcode { background: repeating-linear-gradient(90deg, #101013 0px, #101013 2px, transparent 2px, transparent 5px, #101013 5px, #101013 9px, transparent 9px, transparent 11px); height: 35px; margin-top: 25px; }
+.recap-ticket > p { font-size: .55rem; margin-bottom: 0; }
+.recap-stage--4 { background: var(--recap-blue); color: #FFFFFF; }
+.recap-time { min-height: 580px; display: grid; grid-template-columns: 1.2fr 1fr; padding: 54px; gap: 30px; align-items: center; }
+.recap-time h2 { font-size: clamp(4rem, 8.3vw, 8rem); }
+.recap-longest { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: end; }
+.recap-longest .recap-poster { transform: rotate(-7deg); box-shadow: 8px 12px 0 #0c209d; }
+.recap-longest h3 { font-family: 'League Spartan', sans-serif; font-size: 2rem; line-height: 1; margin: 12px 0; }
+.recap-longest span { font-size: .7rem; }
+.recap-longest strong { font-size: .8rem; }
+.recap-stage--5 { background: #FFAECA; }
+.recap-finale { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; min-height: 580px; padding: 54px 54px 30px; align-items: center; }
+.recap-finale h2 { font-size: clamp(4rem, 7.4vw, 7rem); }
+.recap-mosaic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; transform: rotate(5deg); margin: -25px -5px -25px 15px; }
+.recap-mosaic .recap-poster { border-radius: 3px; }
+.recap-primary { display: inline-flex; padding: 13px 20px; margin-top: 12px; border: none; background: var(--recap-ink); color: #FFFFFF; border-radius: 40px; font-size: .8rem !important; }
+.recap-controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 15px 0 4px; }
+.recap-controls > span { font-size: .7rem; color: #606065; font-variant-numeric: tabular-nums; }
+.recap-chapter-name { margin-left: 14px; color: var(--recap-ink); }
+.recap-controls > div { display: flex; gap: 8px; }
+.recap-controls button { min-width: 44px; height: 44px; padding: 9px; border: 1px solid #dddde3; border-radius: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; background: #FFFFFF; color: var(--recap-ink); }
+.recap-controls button:disabled { opacity: .35; cursor: default; }
+.recap-controls button.recap-next { background: var(--recap-ink); color: #FFFFFF; border-color: var(--recap-ink); padding-inline: 18px 12px; font-size: .8rem; }
+.cinema-credits { border-top: 1px solid #e7e7eb; margin-top: 38px; padding-top: 20px; display: flex; justify-content: space-between; gap: 24px; color: #606065; font-size: .66rem; line-height: 1.7; }
+.cinema-credits span { color: var(--recap-ink); font-size: .75rem; }
+.cinema-credits p { margin: 5px 0; max-width: 70ch; }
+.cinema-credits details { max-width: 430px; }
+.cinema-credits summary { cursor: pointer; white-space: nowrap; }
+.cinema-credits a { color: inherit; }
+.cinema-view-heading { margin: 36px 0 22px; }
+.cinema-view-heading h2 { font-family: 'League Spartan', sans-serif; font-size: clamp(2.8rem, 5vw, 4.5rem); letter-spacing: -.045em; line-height: 1; margin: 0; }
+.cinema-view-heading p { color: #606065; font-size: .85rem; }
+.cinema-library-tools, .cinema-explore-search { display: flex; gap: 12px; }
+.cinema-library-tools label:first-child, .cinema-explore-search label { flex: 1; }
+.cinema-library-tools input, .cinema-library-tools select, .cinema-explore-search input { width: 100%; padding: 12px 15px; border: 1px solid #d7d7db; background: #FFFFFF; border-radius: 8px; min-height: 46px; font-size: .85rem; color: var(--recap-ink); }
+.cinema-result-count { font-size: .72rem; color: #606065; margin: 18px 0 24px; }
+.cinema-film-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 30px 22px; margin: 22px 0 40px; }
+.cinema-film { min-width: 0; }
+.cinema-film .recap-poster { transition: transform 160ms ease; }
+@media(hover:hover) { .cinema-film:hover .recap-poster { transform: translateY(-4px); } }
+.cinema-film h3 { font-family: 'League Spartan', sans-serif; font-size: 1.25rem; line-height: 1.1; margin: 12px 0 6px; }
+.cinema-film p { font-size: .68rem; color: #606065; margin: 0 0 6px; }
+.cinema-film a { color: var(--recap-ink); font-size: .67rem; text-underline-offset: 3px; }
+.cinema-explore-search button, .cinema-empty button { border: 0; border-radius: 8px; background: var(--recap-ink); color: #FFFFFF; padding: 12px 18px; font-size: .82rem; }
+.cinema-explore-filters { display: flex; gap: 8px; margin: 24px 0; }
+.cinema-explore-filters button { background: #FFFFFF; border: 1px solid #d7d7db; border-radius: 30px; padding: 9px 16px; font-size: .77rem; }
+.cinema-explore-filters button[aria-pressed="true"] { background: var(--recap-yellow); border-color: var(--recap-yellow); }
+.cinema-empty { padding: 50px 20px; text-align: center; color: #606065; font-size: .9rem; }
+.cinema-empty h3 { font-family: 'League Spartan', sans-serif; color: var(--recap-ink); font-size: 1.8rem; }
+.cinema-skeleton-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 22px; }
+.cinema-skeleton-grid > div { aspect-ratio: 2 / 3; background: #ededf1; border-radius: 5px; }
+@keyframes recap-in { from { opacity: .45; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@media(max-width:1000px) { .cinema-app { padding: 30px 24px; } .recap-intro, .recap-time, .recap-finale { padding: 40px 34px; } .recap-genres, .recap-rituals, .recap-directors { padding: 40px 34px 28px; } .recap-director-list { gap: 16px; } .recap-director { flex-direction: column; align-items: flex-start; } .recap-director h3 { font-size: 1.3rem; } .recap-fan { height: 360px; } .cinema-film-grid, .cinema-skeleton-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 25px 16px; } .recap-ticket { padding: 22px; } }
+@media(max-width:640px) {
+ .cinema-app { padding: 24px 16px; }
+ .cinema-masthead { gap: 12px; align-items: flex-start; }
+ .cinema-masthead h1 { font-size: 2.2rem; max-width: 190px; }
+ .cinema-masthead p { font-size: .66rem; }
+ .cinema-edition select { max-width: 128px; padding-left: 9px; font-size: .75rem; }
+ .cinema-edition > span { font-size: .62rem; }
+ .cinema-switcher { gap: 26px; margin-bottom: 12px; }
+ .cinema-switcher button { font-size: .8rem; }
+ .recap-stage { border-radius: 12px; min-height: 590px; }
+ .recap-stage h2 { font-size: 4.2rem; }
+ .recap-kicker { font-size: .68rem; }
+ .recap-intro { display: block; position: relative; min-height: 590px; padding: 30px 26px; }
+ .recap-intro h2 { margin: 26px 0 0; font-size: clamp(3.9rem, 15.6vw, 5rem); max-width: 250px; }
+ .recap-intro-stat { margin-top: 10px; font-size: .78rem; max-width: 24ch; }
+ .recap-intro-stat strong { font-size: 1.6rem; }
+ .recap-fan { position: absolute; bottom: 12px; left: 32%; right: -1%; height: 230px; margin: 0; }
+ .recap-fan .recap-poster { width: 44%; max-width: 120px; }
+ .recap-fan-0 { top: 10px; left: -10%; }
+ .recap-fan-1 { top: -18px; left: 25%; }
+ .recap-fan-2 { top: 67px; left: 48%; }
+ .recap-fan-3 { top: 70px; left: 3%; }
+ .recap-genres { display: block; padding: 30px 26px 24px; min-height: 590px; }
+ .recap-genres h2 { font-size: clamp(3.3rem, 14vw, 4.6rem); margin-bottom: 18px; }
+ .recap-genres .recap-lede { font-size: .8rem; max-width: 30ch; }
+ .recap-genre-ranking { margin: 20px 0; gap: 12px; }
+ .recap-genre-ranking li { font-size: .76rem; }
+ .recap-genre-posters { display: none; }
+ .recap-genres > .recap-footnote { margin-top: 24px; }
+ .recap-directors { min-height: 590px; padding: 30px 26px; }
+ .recap-directors h2 { font-size: 3.6rem; margin-top: 28px; }
+ .recap-director-list { gap: 15px; margin-top: 30px; }
+ .recap-director img, .recap-person-initial { width: 72px; height: 94px; }
+ .recap-director { gap: 10px; }
+ .recap-director h3 { font-size: 1.1rem; overflow-wrap: anywhere; }
+ .recap-director p { font-size: .6rem; }
+ .recap-directors > .recap-footnote { margin-top: 30px; }
+ .recap-rituals { display: block; padding: 30px 26px 24px; min-height: 590px; }
+ .recap-rituals h2 { font-size: 3.8rem; margin: 24px 0 16px; }
+ .recap-habit-number { gap: 12px; }
+ .recap-habit-number strong { font-size: 3.7rem; }
+ .recap-habit-number span { font-size: .65rem; }
+ .recap-ticket { margin: 20px 6px 28px; max-width: none; padding: 18px 22px; transform: rotate(2deg); box-shadow: 4px 5px 0 #101013; }
+ .recap-ticket h3 { display: none; }
+ .recap-ticket dl { margin-top: 16px; font-size: .67rem; gap: 8px; }
+ .recap-ticket-barcode { height: 24px; margin-top: 16px; }
+ .recap-ticket-top { font-size: .59rem; padding-bottom: 10px; }
+ .recap-ticket > p { display: none; }
+ .recap-footnote { font-size: .59rem; }
+ .recap-time { display: block; padding: 30px 26px; min-height: 590px; }
+ .recap-time h2 { font-size: clamp(2.7rem, 13vw, 6rem); margin-top: 35px; }
+ .recap-time .recap-lede { font-size: .9rem; }
+ .recap-longest { grid-template-columns: 115px 1fr; margin-top: 38px; gap: 24px; }
+ .recap-longest h3 { font-size: 1.6rem; }
+ .recap-longest span { font-size: .65rem; }
+ .recap-finale { display: block; position: relative; min-height: 650px; padding: 30px 26px; }
+ .recap-finale h2 { font-size: 4.5rem; margin: 25px 0 18px; }
+ .recap-finale .recap-lede { font-size: .85rem; }
+ .recap-primary { margin-top: 6px; padding: 11px 17px; }
+ .recap-mosaic { grid-template-columns: repeat(4,1fr); gap: 5px; margin: 30px -7px 15px; transform: rotate(-4deg); max-height: 230px; overflow: hidden; }
+ .recap-mosaic .recap-poster:nth-child(n+9) { display: none; }
+ .recap-controls { gap: 8px; }
+ .recap-chapter-name { display: none; }
+ .recap-controls button.recap-next { padding-inline: 16px 10px; }
+ .cinema-credits { display: block; margin-top: 28px; font-size: .6rem; }
+ .cinema-credits details { margin-top: 14px; }
+ .cinema-view-heading { margin-top: 30px; }
+ .cinema-view-heading h2 { font-size: 2.8rem; }
+ .cinema-library-tools { flex-direction: column; }
+ .cinema-film-grid, .cinema-skeleton-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 26px 14px; }
+ .cinema-film h3 { font-size: 1.2rem; }
+ .cinema-explore-search { gap: 8px; }
+ .cinema-explore-search input { min-width: 0; }
+ .cinema-explore-search label { min-width: 0; }
+ .cinema-explore-search button { padding: 10px 12px; font-size: .72rem; }
+}
+@media(prefers-reduced-motion:reduce) { .recap-scene { animation: none; } .cinema-film .recap-poster { transition: none; } }
+
+.cinema-tmdb-credit { display: inline-block; margin: 14px 0 5px; }

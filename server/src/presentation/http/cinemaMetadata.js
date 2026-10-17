@@ -16,7 +16,7 @@ export function selectMovieMatch(results, title, year) {
     return { movie, score }
   }).filter(item => item.score >= .75)
   // Popularity resolves same-title shorts vs feature films; title and year still gate the match.
-  return scored.sort((a, b) => (b.score + Math.min(.28, Math.log10(1 + (b.movie.popularity ?? 0)) / 12)) - (a.score + Math.min(.28, Math.log10(1 + (a.movie.popularity ?? 0)) / 12)))[0]?.movie ?? null
+  return scored.sort((a, b) => (b.score + Math.min(.28, Math.log10(1 + (b.movie.popularity ?? 0)) / 12) + Math.min(.3, Math.log10(1 + (b.movie.vote_count ?? 0)) / 10)) - (a.score + Math.min(.28, Math.log10(1 + (a.movie.popularity ?? 0)) / 12) + Math.min(.3, Math.log10(1 + (a.movie.vote_count ?? 0)) / 10)))[0]?.movie ?? null
 }
 
 export function createMovieResolver(callTmdb) {
