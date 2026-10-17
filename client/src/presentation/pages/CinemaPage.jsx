@@ -4,6 +4,7 @@ import {
   listLetterboxdReviews,
 } from '../../infrastructure/api/moviesApi'
 import { useFilmsCinema } from '../hooks/useFilmsCinema'
+import { CinemaSheetDashboard } from '../components/CinemaSheetDashboard'
 
 const OPTIONS_STATUT_FILM = [
   { value: 'watchlist', label: 'Liste de lecture' },
@@ -253,11 +254,14 @@ export function CinemaPage() {
         </section>
 
         <nav className="cinema-section-nav" aria-label="Menu cinéma">
+          <a href="#cinema-statistics">Mes statistiques</a>
           <a href="#cinema-upcoming">Sorties à venir</a>
           <a href="#cinema-explorer">Explorer TMDb</a>
           <a href="#cinema-collection">Ma collection</a>
           <a href="#cinema-letterboxd">Letterboxd</a>
         </nav>
+
+        <CinemaSheetDashboard />
 
         <section className="cinema-panel cinema-import-panel" id="cinema-letterboxd">
           <div className="cinema-panel__header">
@@ -531,3 +535,4 @@ export function CinemaPage() {
     </main>
   )
 }
+

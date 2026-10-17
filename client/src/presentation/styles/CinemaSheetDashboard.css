@@ -1,0 +1,23 @@
+.sheet-dashboard { border-top: 1px solid var(--line); padding-top: 28px; }
+.sheet-year { display: grid; gap: 8px; font-size: .85rem; }
+.sheet-year select, .sheet-year input { padding: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: #FFFFFF; color: var(--ink); font: inherit; }
+.sheet-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.sheet-kpis article { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: #FFFFFF; }
+.sheet-kpis strong { display: block; font-family: 'League Spartan', sans-serif; font-size: clamp(1.7rem, 3vw, 2.5rem); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.sheet-kpis span, .sheet-caption { color: var(--muted); font-size: .78rem; line-height: 1.7; }
+.sheet-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.sheet-chart { min-width: 0; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: #FFFFFF; }
+.sheet-chart h3 { margin: 0; font-family: 'League Spartan', sans-serif; font-size: 1.5rem; }
+.sheet-bars { list-style: none; padding: 0; display: grid; gap: 16px; }
+.sheet-bars li > div:first-child { display: flex; justify-content: space-between; gap: 16px; font-size: .85rem; overflow-wrap: anywhere; }
+.sheet-bars strong { font-variant-numeric: tabular-nums; }
+.sheet-bar-track { height: 9px; border-radius: 6px; margin-top: 6px; background: #f0f0f0; overflow: hidden; }
+.sheet-bar-track span { display: block; height: 100%; background: #826400; border-radius: inherit; }
+.sheet-library { margin-top: 24px; }
+.sheet-library summary { padding: 16px 0; cursor: pointer; font-weight: 600; }
+.sheet-library .sheet-year { max-width: 380px; }
+.sheet-table-scroll { overflow: auto; max-height: 520px; }
+.sheet-table-scroll table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.sheet-table-scroll th, .sheet-table-scroll td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; }
+.sheet-table-scroll thead { position: sticky; top: 0; background: #FFFFFF; }
+@media(max-width:760px) { .sheet-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); } .sheet-charts { grid-template-columns: 1fr; } .sheet-year { margin-top: 16px; } }
